@@ -1,0 +1,295 @@
+"""Timeline EDL schema: frozen pydantic models. Duration in ms precision."""
+
+import uuid
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+from app.scenes.models import ScenePlacement, SceneSpec
+from app.storyboard.models import Storyboard
+from app.timeline.transcript import Transcript
+
+Frozen = ConfigDict(frozen=True)
+
+WORD_ID = r"^w\d+$"
+HEX_COLOR = r"^#[0-9A-Fa-f]{6}$"
+MIN_SPEED, MAX_SPEED = 0.25, 4.0
+EPS = 1e-6  # float dust threshold for clip-boundary comparisons
+
+
+class VideoClip(BaseModel):
+    """One source range on the video track. Output length = (src_out - src_in) / speed."""
+
+    model_config = Frozen
+
+    id: str = Field(min_length=1, description="Clip ID, unique per timeline")
+    asset: str = Field(min_length=1, description="Source asset ID")
+    src_in: float = Field(ge=0.0, description="Source in-point seconds")
+    src_out: float = Field(ge=0.0, description="Source out-point seconds")
+    speed: float = Field(
+        default=1.0, gt=0, description="Speed factor (policy range enforced by validator)"
+    )
+    transition_in: Literal["inherit", "none", "zoom_in", "flash", "whip"] = Field(
+        default="inherit",
+        description="Effect on the cut INTO this clip; 'inherit' uses Timeline.transition",
+    )
+    framing_zoom: float = Field(
+        default=1.0,
+        ge=1.0,
+        le=1.5,
+        allow_inf_nan=False,
+        description="Static face-anchored tighter framing for this clip (hides jump cuts)",
+    )
+
+    @model_validator(mode="after")
+    def _ordered(self) -> "VideoClip":
+        if self.src_out <= self.src_in:
+            raise ValueError(f"clip {self.id}: src_out must exceed src_in")
+        return self
+
+    @property
+    def output_len(self) -> float:
+        """Output seconds contributed by this clip."""
+        return (self.src_out - self.src_in) / self.speed
+
+
+class AudioEffect(BaseModel):
+    """Declarative audio effect (denoise, loudnorm, ducking configured in Phase 6)."""
+
+    model_config = Frozen
+
+    type: Literal["denoise", "loudnorm", "ducking"] = Field(description="Effect type")
+    params: dict[str, float] = Field(default_factory=dict, description="Effect params")
+
+
+class CaptionConfig(BaseModel):
+    """Caption rendering config (ASS renderer lands in Phase 4)."""
+
+    model_config = Frozen
+
+    mode: Literal["word_highlight", "line", "off"] = Field(default="word_highlight")
+    position: Literal["center", "center_lower", "showcase"] = Field(
+        default="center_lower", description="Safe-area aware position (never bottom strip)"
+    )
+    words_per_line: int = Field(
+        default=2, ge=1, description="Words per line (policy cap enforced by validator)"
+    )
+    style: str = Field(default="from_profile", description="Caption style / preset name")
+    size_px: int = Field(default=84, ge=40, le=160, description="Font size at 1080x1920")
+    base_color: str = Field(default="#FFFFFF", pattern=HEX_COLOR, description="Base text colour")
+    highlight_color: str = Field(
+        default="#FFD400", pattern=HEX_COLOR, description="Active-word colour (word_highlight)"
+    )
+    uppercase: bool = Field(default=False, description="Render caption text in capitals")
+    animation: Literal["none", "pop"] = Field(
+        default="none", description="pop = active word scales 85% -> 112% -> 100%"
+    )
+
+
+class Zoom(BaseModel):
+    """Punch-in anchored to a word ID."""
+
+    model_config = Frozen
+
+    id: str = Field(min_length=1, description="Zoom ID, unique per timeline")
+    anchor_word: str = Field(pattern=WORD_ID, description="Word ID the zoom lands on")
+    scale: float = Field(gt=0, description="Zoom scale (policy range enforced by validator)")
+    dur_ms: int = Field(default=220, ge=100, le=2000, description="Ease-in time of the punch")
+    hold_ms: int = Field(
+        default=900, ge=0, le=5000, description="Time held zoomed before easing back out"
+    )
+
+
+Layout = Literal[
+    "cutaway_full",
+    "pip_pop",
+    "split_top",
+    "lower_third_card",
+    "blur_bg_contain",
+    "top_banner",
+    "showcase",
+    "proof",
+]
+
+
+class Overlay(BaseModel):
+    """Visual insert anchored to a word ID (cutaway, PiP, card...)."""
+
+    model_config = Frozen
+
+    id: str = Field(min_length=1, description="Insert ID, unique per timeline")
+    type: Literal["image", "gif", "video", "icon", "meme", "stat_card", "headline_card"] = Field(
+        description="Asset type"
+    )
+    asset: str = Field(min_length=1, description="Asset ID")
+    anchor_word: str = Field(pattern=WORD_ID, description="Anchor: end of this word + offset")
+    offset_ms: int = Field(
+        default=80, ge=-500, le=500, description="Delay after word (or word start)"
+    )
+    duration_ms: int = Field(ge=300, le=120000, description="On-screen duration")
+    layout: Layout = Field(description="Layout mode")
+    license: str = Field(default="", description="Asset license (presence enforced by validator)")
+    attribution_required: bool = Field(default=False)
+    attribution_text: str = Field(default="")
+    commercial_use: bool = Field(default=True, description="False = personal use only (ADR-014)")
+    motion: Literal["none", "push_in", "pull_out", "pan_up", "pan_down"] = "none"
+    entrance: Literal["cut", "slide_up"] = "cut"
+
+
+class MusicBed(BaseModel):
+    """Burned-in music bed (provider + ducking land in Phase 6)."""
+
+    model_config = Frozen
+
+    asset: str = Field(min_length=1, description="Music asset ID")
+    license: str = Field(default="", description="Track license (presence enforced by validator)")
+    attribution_required: bool = Field(default=False)
+    attribution_text: str = Field(default="")
+    level_db: float = Field(default=-18.0, le=0.0, description="Bed level under voice")
+    commercial_use: bool = Field(default=True, description="False = personal use only (ADR-014)")
+
+
+class SfxHit(BaseModel):
+    """One sound-effect hit anchored to a word."""
+
+    model_config = Frozen
+
+    id: str = Field(min_length=1, description="SFX ID")
+    asset: str = Field(min_length=1, description="SFX asset ID")
+    anchor_word: str = Field(pattern=WORD_ID, description="Anchor word")
+    offset_ms: int = Field(default=0, ge=-500, le=500, description="Offset from word end")
+    gain_db: float = Field(default=-8.0, le=0.0, description="Hit gain")
+    max_ms: int = Field(default=1500, ge=50, le=10000, description="Hit is trimmed to this length")
+    license: str = Field(default="", description="Clip license (presence enforced by validator)")
+    commercial_use: bool = Field(default=True, description="False = personal use only")
+    attribution_text: str = Field(default="", description="Credit line, when one is required")
+
+
+class Voiceover(BaseModel):
+    """Generated narration starting as a word ends; the original voice is ducked under it."""
+
+    model_config = Frozen
+
+    id: str = Field(min_length=1, description="Voiceover ID (vo1, vo2...)")
+    asset: str = Field(min_length=1, description="Generated audio asset ID")
+    text: str = Field(min_length=1, max_length=300, description="Spoken text (for captions/UI)")
+    anchor_word: str = Field(pattern=WORD_ID, description="Starts at the end of this word")
+    offset_ms: int = Field(default=0, ge=0, le=500, description="Delay after the word end")
+    duration_ms: int = Field(ge=100, le=30000, description="Clip length")
+    gain_db: float = Field(default=0.0, ge=-20.0, le=6.0, description="Narration level")
+    duck_db: float = Field(default=-14.0, ge=-40.0, le=0.0, description="Original voice under it")
+    license: str = Field(default="", description="Clip license (presence enforced by validator)")
+    attribution_required: bool = Field(default=False)
+    attribution_text: str = Field(default="")
+    commercial_use: bool = Field(default=True, description="False = personal use only")
+
+
+class DubTrack(BaseModel):
+    """Dubbed speech replacing the original voice. Same timing as the master's audio, so
+    the timeline's cuts apply to it unchanged."""
+
+    model_config = Frozen
+
+    language: Literal["en", "hi"] = Field(description="Dub language")
+    asset: str = Field(min_length=1, description="Generated audio asset ID")
+    license: str = Field(default="", description="Track license (presence enforced by validator)")
+    attribution_required: bool = Field(default=False)
+    attribution_text: str = Field(default="")
+    commercial_use: bool = Field(default=True, description="False = personal use only")
+
+
+class OutputSpec(BaseModel):
+    """Render target (always vertical)."""
+
+    model_config = Frozen
+
+    aspect: Literal["9:16"] = Field(default="9:16")
+    width: int = Field(default=1080)
+    height: int = Field(default=1920)
+    fps: int = Field(default=30, ge=24, le=60)
+
+
+class Timeline(BaseModel):
+    """Immutable EDL snapshot. Every op returns a new Timeline + Diff."""
+
+    model_config = Frozen
+
+    project_id: uuid.UUID = Field(description="Owning project")
+    version: int = Field(default=1, ge=1, description="Version number this snapshot represents")
+    transcript: Transcript = Field(description="Canonical words + beats")
+    video_clips: list[VideoClip] = Field(min_length=1, description="Ordered video track")
+    storyboard: Storyboard | None = None
+    storyboard_hash: str | None = None
+    scene_repair_count: int = Field(default=0, ge=0, le=1)
+    repair_assessment_hash: str | None = None
+    scenes: list[SceneSpec] = Field(default_factory=list, max_length=32)
+    scene_placements: list[ScenePlacement] = Field(default_factory=list, max_length=32)
+    audio_fx: list[AudioEffect] = Field(default_factory=list)
+    captions: CaptionConfig = Field(default_factory=CaptionConfig)
+    zooms: list[Zoom] = Field(default_factory=list)
+    overlays: list[Overlay] = Field(default_factory=list)
+    music: MusicBed | None = Field(default=None)
+    sfx: list[SfxHit] = Field(default_factory=list)
+    voiceovers: list[Voiceover] = Field(default_factory=list)
+    dub: DubTrack | None = Field(default=None, description="Dubbed voice track, if any")
+    output: OutputSpec = Field(default_factory=OutputSpec)
+    style_id: str | None = Field(default=None)
+    trend_pack: str | None = Field(default=None)
+    transition: Literal["none", "zoom_in", "flash", "whip"] = Field(
+        default="none", description="Effect applied at the start of every clip after a cut"
+    )
+    scene_exit: Literal["none", "zoom_in", "flash", "whip"] = Field(
+        default="none", description="Effect when raw footage returns after a full-frame scene"
+    )
+    speaker_drift: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=0.08,
+        allow_inf_nan=False,
+        description="Slow face-anchored push/pull on raw footage (0.03 subtle, 0.06 lively)",
+    )
+    reframe: Literal["center", "face", "blur", "split_bottom", "split", "adaptive", "contain"] = (
+        Field(
+            default="center",
+            description="9:16 reframe mode (face falls back to center without tracks; "
+            "split_bottom puts the speaker in the bottom half; adaptive switches between split "
+            "and the blurred middle view)",
+        )
+    )
+    speaker_zoom: float = Field(
+        default=1.0,
+        ge=1.0,
+        le=4.0,
+        allow_inf_nan=False,
+        description="Extra face-centred magnification of the split speaker panel",
+    )
+
+    @field_validator("video_clips")
+    @classmethod
+    def _unique_clip_ids(cls, clips: list[VideoClip]) -> list[VideoClip]:
+        ids = [c.id for c in clips]
+        if len(set(ids)) != len(ids):
+            raise ValueError("duplicate clip ids")
+        return clips
+
+    @field_validator("overlays")
+    @classmethod
+    def _unique_overlay_ids(cls, overlays: list[Overlay]) -> list[Overlay]:
+        ids = [o.id for o in overlays]
+        if len(set(ids)) != len(ids):
+            raise ValueError("duplicate overlay ids")
+        return overlays
+
+    @property
+    def duration_s(self) -> float:
+        """Output duration in seconds, millisecond precision."""
+        return round(sum(c.output_len for c in self.video_clips), 3)
+
+
+class Diff(BaseModel):
+    """What one op changed (for chat messages + version history)."""
+
+    model_config = Frozen
+
+    op: str = Field(description="Op name")
+    details: dict[str, str] = Field(default_factory=dict, description="Stringified change summary")
