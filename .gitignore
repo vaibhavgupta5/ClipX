@@ -1,0 +1,44 @@
+__pycache__/
+*.py[cod]
+.venv/
+.uv/
+*.egg-info/
+.env
+.env.*
+!.env.example
+upload/
+work/
+editedVideo/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+dist/
+build/
+fixtures/synth/*.mp4
+fixtures/real/*
+!fixtures/real/.gitkeep
+.DS_Store
+# local asset libraries: media is downloaded by `make assets`; manifests (license records) are tracked
+assets/**
+!assets/
+!assets/*/
+!assets/*/manifest.json
+# ElevenLabs output is a per-install cache, not a tracked library
+assets/generated/
+assets/showcase/
+# Local copies of the downloaded asset library and its archive
+/assests/
+/assests 2/
+/assests.zip
+edited_one/
+scratch/
+testInput.mp4
+devday-raw.mp4
+
+# Compiled local visual runtime
+visuals/node_modules/
+visuals/dist/
+
+.tools/

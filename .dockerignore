@@ -1,0 +1,22 @@
+__pycache__
+*.py[cod]
+.venv
+.git
+.gitignore
+.env
+pytest_cache
+.mypy_cache
+.ruff_cache
+tests/
+fixtures/
+docs/
+.pytest_cache/
+
+visuals/node_modules/
+visuals/dist/
+.tools/
+work/
+editedVideo/
+assests/
+assests 2/
+assests.zip

@@ -1,0 +1,105 @@
+[project]
+name = "clipz"
+version = "0.1.0"
+description = "ClipZ: agentic reel-editing backend (LLM edits Timeline JSON, deterministic FFmpeg renderer)"
+readme = "CLAUDE.md"
+requires-python = "==3.12.*"
+dependencies = [
+  "fastapi>=0.115,<0.120",
+  "uvicorn[standard]>=0.30",
+  "arq>=0.26",
+  "redis>=5.0",
+  "pydantic>=2.7",
+  "pydantic-settings>=2.4",
+  "structlog>=24.1",
+  "opentelemetry-api>=1.26",
+  "opentelemetry-sdk>=1.26",
+  "opentelemetry-exporter-otlp>=1.26",
+  "httpx>=0.27",
+  "python-multipart>=0.0.9",
+  "numpy>=2.5.3",
+  "sse-starlette>=3.0.3",
+  "google-genai>=2.29.0",
+  "pillow>=12.3.0",
+  "faster-whisper>=1.2.1",
+  "asyncpg>=0.32.0",
+  "opencv-python-headless>=4.10,<5",
+  "boto3>=1.43.111",
+  "mcp>=1.2",
+  "anthropic>=1.0",
+]
+
+[project.optional-dependencies]
+showcase = ["playwright>=1.51,<2"]
+video-test = ["yt-dlp>=2026.10.26"]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3",
+  "pytest-asyncio>=0.23",
+  "hypothesis>=6.100",
+  "respx>=0.22",
+  "ruff>=0.5",
+  "mypy>=1.10",
+  "pre-commit>=3.5",
+  "pytest-cov>=7.1.0",
+  "asyncpg-stubs>=0.32.0",
+  "boto3-stubs[s3]>=1.43.123",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+filterwarnings = [
+  "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning",
+]
+markers = [
+  "integration: tests requiring live infra (mongo, redis) or real providers",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = ["scratch"]  # local throwaway scripts, not shipped
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC", "S"]
+ignore = ["S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S106", "S108"]
+# Integration tests invoke fixed ffmpeg/ffprobe arg lists (never shell, no variables in argv[0]).
+"scripts/fetch_assets.py" = ["S603", "S607"]
+"tests/evals/test_director_evals.py" = ["ASYNC240"]
+"tests/unit/test_no_secrets.py" = ["S603", "S607"]
+"tests/integration/test_music_mix.py" = ["S603", "S607", "ASYNC221"]
+"tests/integration/test_ingest.py" = ["S603", "S607"]
+"tests/integration/test_render.py" = ["S603", "S607"]
+"tests/golden/test_render.py" = ["S603", "S607", "ASYNC240", "ASYNC221"]
+# Vetted subprocess modules: arg lists only, never shell (enforced by tests/unit/test_no_shell.py).
+"app/media/ffmpeg.py" = ["S603", "S607"]
+"app/media/probe.py" = ["S603", "S607"]
+"app/render/edl_to_ffmpeg.py" = ["S603", "S607"]
+"app/render/render.py" = ["S603", "S607"]
+# Local QA CLI owns its files; blocking file reads do not serve API requests.
+"scripts/quality_demo.py" = ["ASYNC240"]
+"scripts/prompt_demo.py" = ["ASYNC240"]
+"scripts/reference_pass.py" = ["ASYNC240"]
+"scripts/hybrid_demo.py" = ["ASYNC240", "S603", "S607"]
+"scripts/livestream_impact.py" = ["ASYNC240"]
+"landing/video/render.py" = ["S603", "S607"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+show_error_codes = true
+warn_unused_configs = true
+[[tool.mypy.overrides]]
+module = ["arq.*", "torch.*", "faster_whisper.*", "mediapipe.*", "cv2.*", "librosa.*"]
+ignore_missing_imports = true
+[[tool.mypy.overrides]]
+module = ["playwright.*"]
+ignore_missing_imports = true

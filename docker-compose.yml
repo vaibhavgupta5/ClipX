@@ -1,0 +1,125 @@
+services:
+  tiger:
+    # Same engine as Tiger Cloud (PostgreSQL + TimescaleDB). Local dev/tests only;
+    # point TIGER_DATABASE_URL at your Tiger Cloud service for the real app.
+    image: timescale/timescaledb:latest-pg17
+    environment:
+      POSTGRES_USER: reelforge
+      POSTGRES_PASSWORD: reelforge
+      POSTGRES_DB: reelforge
+    ports:
+      - "5433:5432"  # 5432 is often taken by a host postgres
+    volumes:
+      - tigerdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reelforge -d reelforge"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    user: "${UID:-1000}:${GID:-1000}"  # bind-mounted data dirs stay owned by you
+    depends_on:
+      tiger:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Containers use Tiger Cloud when TIGER_CLOUD_DATABASE_URL is set in .env, else the tiger service.
+      TIGER_DATABASE_URL: ${TIGER_CLOUD_DATABASE_URL:-postgresql://reelforge:reelforge@tiger:5432/reelforge}
+      REDIS_URL: redis://redis:6379/0
+      UPLOAD_DIR: /srv/data/upload
+      WORK_DIR: /srv/data/work
+      EDITED_DIR: /srv/data/editedVideo
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-local}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:-}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-}
+      S3_PUBLIC_URL_BASE: ${S3_PUBLIC_URL_BASE:-}
+      LLM_PROVIDER: ${LLM_PROVIDER:-gemini}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-sonnet-5-5}
+      CLAUDE_PLANNER_MODEL: ${CLAUDE_PLANNER_MODEL:-}
+      CLAUDE_LLM_EFFORT: ${CLAUDE_LLM_EFFORT:-medium}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3-flash-preview}
+      GEMINI_FALLBACK_MODELS: ${GEMINI_FALLBACK_MODELS:-gemini-2.5-flash,gemini-3.5-flash-lite,gemini-2.5-flash-lite}
+      GEMINI_THINKING_LEVEL: ${GEMINI_THINKING_LEVEL:-}
+      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
+      ELEVENLABS_PLAN: ${ELEVENLABS_PLAN:-free}
+      ELEVENLABS_VOICE_ID: ${ELEVENLABS_VOICE_ID:-JBFqnCBsd6RMkjVDRZzb}
+      ASSETS_DIR: /srv/assets
+      UV_CACHE_DIR: /tmp/uv
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/srv/app:ro
+      - ./assets:/srv/assets:ro
+      - ./assets/generated:/srv/assets/generated  # writable: GeneratedAudioStore cache (SFX/voiceover/dub)
+      - ./upload:/srv/data/upload
+      - ./work:/srv/data/work
+      - ./editedVideo:/srv/data/editedVideo
+    command: uv run --no-sync uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  worker-cpu:
+    build: .
+    user: "${UID:-1000}:${GID:-1000}"  # bind-mounted data dirs stay owned by you
+    depends_on:
+      tiger:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Containers use Tiger Cloud when TIGER_CLOUD_DATABASE_URL is set in .env, else the tiger service.
+      TIGER_DATABASE_URL: ${TIGER_CLOUD_DATABASE_URL:-postgresql://reelforge:reelforge@tiger:5432/reelforge}
+      REDIS_URL: redis://redis:6379/0
+      UPLOAD_DIR: /srv/data/upload
+      WORK_DIR: /srv/data/work
+      EDITED_DIR: /srv/data/editedVideo
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-local}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:-}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-}
+      S3_PUBLIC_URL_BASE: ${S3_PUBLIC_URL_BASE:-}
+      LLM_PROVIDER: ${LLM_PROVIDER:-gemini}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-sonnet-5-5}
+      CLAUDE_PLANNER_MODEL: ${CLAUDE_PLANNER_MODEL:-}
+      CLAUDE_LLM_EFFORT: ${CLAUDE_LLM_EFFORT:-medium}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3-flash-preview}
+      GEMINI_FALLBACK_MODELS: ${GEMINI_FALLBACK_MODELS:-gemini-2.5-flash,gemini-3.5-flash-lite,gemini-2.5-flash-lite}
+      GEMINI_THINKING_LEVEL: ${GEMINI_THINKING_LEVEL:-}
+      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
+      ELEVENLABS_PLAN: ${ELEVENLABS_PLAN:-free}
+      ELEVENLABS_VOICE_ID: ${ELEVENLABS_VOICE_ID:-JBFqnCBsd6RMkjVDRZzb}
+      ASSETS_DIR: /srv/assets
+      WHISPER_MODEL: ${WHISPER_MODEL:-small}
+      HF_HOME: /srv/data/work/.hf  # faster-whisper model, downloaded once
+      UV_CACHE_DIR: /tmp/uv
+    volumes:
+      - ./app:/srv/app:ro
+      - ./assets:/srv/assets:ro
+      - ./assets/generated:/srv/assets/generated  # writable: GeneratedAudioStore cache (SFX/voiceover/dub)
+      - ./upload:/srv/data/upload
+      - ./work:/srv/data/work
+      - ./editedVideo:/srv/data/editedVideo
+    command: uv run --no-sync arq app.workers.main.WorkerSettings
+
+volumes:
+  tigerdata:
