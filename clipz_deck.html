@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ClipZ Pitch Deck - Team SkyRocket</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800;900&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  @page { size: 16in 9in; margin: 0; }
+
+  :root{
+    --cobalt:#2430FF; --cobalt-tint:#8B93FF; --ink:#0B0B14; --yellow:#FFD400;
+    --surface:#14142A; --surface-2:#1B1B36; --white:#F5F4FF;
+    --shadow-c: rgba(44,58,255,.42);
+    --ink-70: rgba(245,244,255,.66); --ink-45: rgba(245,244,255,.44); --ink-18: rgba(245,244,255,.14); --ink-08: rgba(245,244,255,.07);
+    --display:"Unbounded","Arial Black",system-ui,sans-serif;
+    --body:"Hanken Grotesk","Helvetica Neue",Arial,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--body);
+    background-color: var(--ink);
+    color: var(--white);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .slide {
+    width: 16in;
+    height: 9in;
+    page-break-after: always;
+    page-break-inside: avoid;
+    position: relative;
+    overflow: hidden;
+    background: var(--ink);
+    padding: 2.6rem 4rem 2.2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .slide::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,.055) 1px, transparent 1px);
+    background-size: 26px 26px;
+    -webkit-mask-image: radial-gradient(ellipse 60% 50% at 82% 8%, #000 0%, transparent 70%);
+    mask-image: radial-gradient(ellipse 60% 50% at 82% 8%, #000 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .slide::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: var(--cobalt);
+  }
+
+  .slide-content { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+
+  /* Header */
+  .slide-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: .72rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--cobalt-tint); margin-bottom: .6rem; display: block;
+  }
+  .eyebrow::before { content: "\25B8  "; }
+
+  .slide-title { font-family: var(--display); font-size: 2.7rem; font-weight: 800; letter-spacing: -.03em; line-height: 1.02; color: var(--white); text-wrap: balance; }
+  .slide-title em { font-style: normal; color: var(--yellow); }
+  .slide-title.cover { font-size: 4rem; }
+
+  .slide-subtitle { font-size: 1.05rem; color: var(--ink-70); font-weight: 400; margin-top: .55rem; max-width: 56ch; }
+
+  .hero-meta { display: flex; flex-wrap: wrap; gap: .4rem 1.3rem; font-family: var(--mono); font-size: .76rem; color: var(--ink-70); margin-top: 1rem; }
+  .hero-meta span::before { content: "\25B8 "; color: var(--yellow); }
+
+  /* Decorative orbit rings */
+  .orbit { position: absolute; border-radius: 50%; border: 1.5px dashed var(--ink-18); pointer-events: none; }
+  .orbit-1 { width: 560px; height: 560px; top: -170px; right: -160px; }
+  .orbit-2 { width: 340px; height: 340px; top: -30px; right: -10px; border-color: rgba(44,58,255,.26); }
+
+  .slide-number {
+    font-family: var(--mono); font-size: .8rem; font-weight: 600; color: var(--ink);
+    background: var(--white); border: 1.5px solid var(--ink); padding: .35rem .7rem;
+    box-shadow: 3px 3px 0 var(--shadow-c); flex: none;
+  }
+
+  /* Cards */
+  .card { background: var(--surface); border: 1.5px solid var(--ink-18); border-radius: 20px; padding: 1.5rem; }
+  .card-flat { border: none; padding: 1.5rem; border-radius: 20px; }
+  .card-highlight { background: var(--cobalt); color: var(--white); border: 1.5px solid var(--cobalt); box-shadow: 7px 7px 0 var(--shadow-c); }
+  .card-highlight .card-body, .card-highlight .func-list { color: rgba(255,255,255,.86); }
+  .card-amber { background: var(--yellow); color: var(--ink); border: 1.5px solid var(--ink); box-shadow: 7px 7px 0 var(--shadow-c); }
+  .card-amber .card-title, .card-amber .metric-big, .card-amber .func-list, .card-amber .card-body strong { color: var(--ink); }
+  .card-amber .card-body { color: rgba(11,11,20,.72); }
+
+  .slide-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: .85rem; border-top: 1.5px solid var(--ink-18);
+    font-family: var(--mono); font-size: .72rem; color: var(--ink-45);
+  }
+  .slide-footer .brand { font-weight: 600; color: var(--ink-70); }
+
+  /* Grid layouts */
+  .grid-2 { display: grid; grid-template-columns: 1.15fr .85fr; gap: 2.2rem; align-items: center; flex: 1; }
+  .bento-4 { display: grid; grid-template-columns: repeat(2,1fr); gap: 1.1rem; flex: 1; }
+  .bento-6 { display: grid; grid-template-columns: repeat(6,1fr); gap: 1.1rem; flex: 1; align-items: stretch; }
+  .span-4 { grid-column: span 4; }
+  .span-3 { grid-column: span 3; }
+  .span-2 { grid-column: span 2; }
+
+  .metric-big { font-family: var(--display); font-size: 2rem; font-weight: 800; letter-spacing: -.02em; margin-bottom: .35rem; color: var(--cobalt-tint); }
+  .card-title { font-family: var(--display); font-size: 1.1rem; font-weight: 700; color: var(--white); margin-bottom: .5rem; letter-spacing: -.01em; }
+  .card-body { font-size: .92rem; line-height: 1.55; color: var(--ink-70); }
+  .card-body strong { color: var(--white); font-weight: 600; }
+
+  .chip { display: inline-flex; align-items: center; font-family: var(--mono); font-size: .74rem; padding: .3rem .65rem;
+    border: 1.5px solid var(--ink-18); border-radius: 999px; color: var(--ink-70); margin: .25rem .35rem 0 0; }
+  .chip.on { background: var(--yellow); color: var(--ink); border-color: var(--yellow); }
+  .chip.cobalt { background: var(--cobalt); color: var(--white); border-color: var(--cobalt); }
+
+  .func-list { list-style: none; margin-top: .7rem; display: flex; flex-direction: column; gap: .4rem; color: var(--ink-70); }
+  .func-list li { font-family: var(--mono); font-size: .78rem; display: flex; gap: .5rem; align-items: baseline; }
+  .func-list li::before { content: "\2192"; opacity: .6; }
+
+  /* Phone mockup */
+  .phone-stage { display: flex; justify-content: center; align-items: center; flex: 1; }
+  .phone-rig { position: relative; width: 300px; height: 430px; }
+  .phone-backdrop {
+    position: absolute; top: 14px; left: 26px; width: 250px; height: 388px;
+    background: var(--cobalt); border-radius: 34px; transform: rotate(-7deg); z-index: 0;
+  }
+  .phone-mockup {
+    position: absolute; inset: 0; margin: auto; z-index: 1;
+    background: var(--surface); border: 1px solid var(--ink-18); border-radius: 40px; padding: 1rem;
+    box-shadow: 0 28px 60px rgba(0,0,0,.55);
+    display: flex; flex-direction: column; justify-content: space-between;
+    width: 288px; height: 418px; transform: rotate(2deg);
+  }
+  .phone-notch { width: 80px; height: 14px; background: #26263E; border-radius: 999px; margin: 0 auto .85rem; }
+  .phone-chat-bubble {
+    background: rgba(44,58,255,.24); border: 1px solid rgba(44,58,255,.5); border-radius: 14px;
+    padding: .75rem; font-size: .74rem; color: #D9DBFF; line-height: 1.4; margin-bottom: .7rem;
+  }
+  .phone-chat-label { font-family: var(--mono); font-size: .64rem; color: var(--cobalt-tint); font-weight: 700; margin-bottom: .25rem; letter-spacing: .04em; text-transform: uppercase; }
+  .phone-video-preview {
+    flex: 1; background: var(--surface-2); border-radius: 16px;
+    border: 1px dashed var(--ink-18); display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: .9rem; gap: .55rem;
+  }
+  .phone-wave { display: flex; align-items: flex-end; gap: 3px; height: 44px; width: 100%; justify-content: center; }
+  .phone-wave i { width: 5px; border-radius: 3px; background: rgba(255,255,255,.22); display: block; }
+  .phone-wave i.hi { background: var(--cobalt-tint); }
+  .phone-wave i.sil { background: rgba(255,255,255,.08); }
+  .phone-cap { font-family: var(--display); font-weight: 800; font-size: .88rem; color: var(--white); text-transform: uppercase; text-align: center; line-height: 1.35; letter-spacing: -.01em; }
+  .phone-cap .hot { background: var(--yellow); color: var(--ink); padding: 0 .2em; border-radius: 3px; }
+  .phone-meta { font-family: var(--mono); font-size: .62rem; color: var(--ink-45); text-align: center; }
+  .phone-tags { margin-top: .75rem; display: flex; justify-content: space-between; gap: .35rem; }
+  .phone-tags span { font-family: var(--mono); font-size: .62rem; color: var(--ink-70); border: 1px solid var(--ink-18); border-radius: 999px; padding: .22rem .5rem; }
+
+  .sticker { position: absolute; font-family: var(--mono); font-size: .66rem; font-weight: 700; padding: .42rem .62rem; border-radius: 9px; box-shadow: 4px 4px 0 rgba(0,0,0,.5); z-index: 2; }
+  .sticker.s1 { background: var(--yellow); color: var(--ink); top: -6px; left: -16px; transform: rotate(-8deg); }
+  .sticker.s2 { background: var(--white); color: var(--ink); bottom: 14%; right: -20px; transform: rotate(6deg); }
+  .sticker.s3 { background: var(--cobalt); color: var(--white); bottom: -12px; left: 46px; transform: rotate(-4deg); }
+
+  /* Team */
+  .team-label { font-family: var(--mono); font-size: .75rem; font-weight: 700; color: var(--ink-45); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .7rem; }
+  .team-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: .9rem 1.1rem; margin-top: 0; }
+  .team-card { border-top: 2.5px solid var(--ink-18); padding-top: .7rem; }
+  .team-avatar {
+    width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-weight: 700; font-size: .78rem; margin-bottom: .6rem;
+  }
+  .team-card:nth-child(1) .team-avatar { background: var(--cobalt); color: var(--white); }
+  .team-card:nth-child(2) .team-avatar { background: var(--white); color: var(--cobalt); }
+  .team-card:nth-child(3) .team-avatar { background: var(--yellow); color: var(--ink); }
+  .name-slot { height: 13px; width: 70%; border-bottom: 1.5px dashed var(--ink-18); margin-bottom: .4rem; }
+  .team-info .role { font-size: .78rem; color: var(--ink-45); margin-top: .1rem; }
+
+  /* Architecture pipeline */
+  .arch-pipeline { display: flex; flex-direction: column; gap: 1rem; flex: 1; justify-content: center; }
+  .arch-row { display: flex; align-items: stretch; gap: .7rem; }
+  .arch-node { flex: 1; background: var(--surface); border: 1.5px solid var(--ink-18); border-radius: 16px; padding: 1.1rem 1rem; position: relative; }
+  .arch-node::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 16px 16px 0 0; background: var(--ink-18); }
+  .arch-node.accent::before { background: var(--cobalt); }
+  .arch-node.accent2::before { background: var(--yellow); }
+  .arch-node-step { font-family: var(--mono); font-size: .7rem; color: var(--ink-45); font-weight: 600; margin-bottom: .3rem; }
+  .arch-node-title { font-family: var(--display); font-size: .92rem; font-weight: 700; color: var(--white); margin-bottom: .3rem; letter-spacing: -.01em; }
+  .arch-node-desc { font-size: .78rem; color: var(--ink-70); line-height: 1.4; }
+  .arch-arrow { color: var(--cobalt-tint); font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none; width: 1.6rem; }
+  .arch-guarantees { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-top: 1.1rem; }
+  .guard-box { font-family: var(--mono); font-size: .76rem; line-height: 1.7; background: var(--surface-2); color: #D8D9F2; border-radius: 14px; padding: .85rem 1rem; }
+  .guard-box .no { color: #FF8A80; }
+  .guard-box .ok { color: #7CF29A; }
+
+  /* Rows (stack + pricing) */
+  .rows { border-top: 2px solid var(--ink-18); flex: 1; display: flex; flex-direction: column; }
+  .srow { display: grid; grid-template-columns: 130px 1.05fr 1.5fr; gap: 1.4rem; align-items: center; padding: 1.1rem 0; border-bottom: 2px solid var(--ink-18); flex: 1; }
+  .srow .role { font-family: var(--mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--cobalt-tint); font-weight: 700; }
+  .srow .name { font-family: var(--display); font-weight: 800; font-size: 1.55rem; letter-spacing: -.02em; color: var(--white); line-height: 1; }
+  .srow p { margin: 0; font-size: .85rem; color: var(--ink-70); line-height: 1.5; }
+  .srow p strong { color: var(--white); font-weight: 600; }
+
+  .prow { display: grid; grid-template-columns: 1.1fr .9fr 1.6fr; gap: 1.4rem; align-items: center; padding: 1.15rem 1.4rem; border-bottom: 2px solid var(--ink-18); flex: 1; }
+  .prow .plan-name { font-family: var(--display); font-weight: 800; font-size: 1.15rem; color: var(--white); letter-spacing: -.01em; }
+  .prow .plan-sub { font-size: .76rem; color: var(--ink-45); margin-top: .15rem; }
+  .prow .price { font-family: var(--display); font-weight: 800; font-size: 1.7rem; color: var(--white); letter-spacing: -.02em; }
+  .prow .price span { font-family: var(--mono); font-size: .72rem; font-weight: 400; color: var(--ink-45); margin-left: .3rem; }
+  .prow .feat { font-size: .82rem; color: var(--ink-70); line-height: 1.6; }
+  .prow .feat strong { color: var(--white); font-weight: 600; }
+  .prow.featured { background: var(--yellow); border-radius: 0; border-bottom-color: var(--ink); }
+  .prow.featured .plan-name, .prow.featured .price, .prow.featured .feat strong { color: var(--ink); }
+  .prow.featured .plan-sub, .prow.featured .price span, .prow.featured .feat { color: rgba(11,11,20,.7); }
+  .tag-featured { font-family: var(--mono); font-size: .64rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; background: var(--ink); color: var(--yellow); padding: .2rem .5rem; border-radius: 4px; }
+
+  /* Buttons */
+  .btn-y {
+    display: inline-flex; align-items: center; gap: .5rem; font-family: var(--display); font-weight: 700;
+    text-decoration: none; background: var(--yellow); color: var(--ink); padding: .75rem 1.5rem;
+    font-size: .92rem; border: 1.5px solid var(--ink); box-shadow: 5px 5px 0 var(--shadow-c);
+  }
+
+  /* Roadmap steps */
+  .step-row { padding: .8rem 0; border-top: 2px solid var(--ink-18); display: flex; align-items: flex-start; gap: 1rem; }
+  .step-row .num { font-family: var(--mono); font-size: .72rem; color: var(--cobalt-tint); font-weight: 700; flex: none; width: 2rem; padding-top: .15rem; }
+  .step-row h3 { font-family: var(--display); font-weight: 700; font-size: .92rem; color: var(--white); margin-bottom: .2rem; letter-spacing: -.01em; }
+  .step-row p { font-size: .78rem; color: var(--ink-70); }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: TEAM & PROJECT NAME -->
+<div class="slide">
+  <div class="orbit orbit-1"></div>
+  <div class="orbit orbit-2"></div>
+  <div class="slide-content">
+    <div class="slide-header">
+      <div>
+        <span class="eyebrow">Concept &amp; product proposal &middot; 2026</span>
+        <h1 class="slide-title cover">Team SkyRocket &middot; <em>ClipZ</em></h1>
+        <p class="slide-subtitle">&ldquo;You talk. It cuts.&rdquo; An agentic reel editor concept for iOS, built around a multimodal agent that edits a typed timeline instead of raw footage.</p>
+        <div class="hero-meta">
+          <span>Native Swift iOS</span>
+          <span>Gemini-powered agent</span>
+          <span>English + Hindi</span>
+          <span>Max 90s reels</span>
+        </div>
+      </div>
+      <div class="slide-number">01 / 07</div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="card card-highlight" style="margin-bottom: 1.1rem;">
+          <div class="card-title" style="color:#fff;">The product vision</div>
+          <p class="card-body" style="font-size: .95rem;">
+            Eliminating the mobile editing timeline. Creators record raw footage, describe what they want in plain language, and a multimodal agent directs, cuts, reframes, and produces a finished vertical reel.
+          </p>
+        </div>
+
+        <div class="team-label">Team SkyRocket</div>
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="team-avatar">01</div>
+            <div class="team-info">
+              <div class="name-slot"></div>
+              <div class="role">iOS &amp; product architecture</div>
+            </div>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar">02</div>
+            <div class="team-info">
+              <div class="name-slot"></div>
+              <div class="role">Agentic AI &amp; LLM systems</div>
+            </div>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar">03</div>
+            <div class="team-info">
+              <div class="name-slot"></div>
+              <div class="role">Media engine &amp; render pipeline</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-stage">
+        <div class="phone-rig">
+          <div class="phone-backdrop"></div>
+          <div class="phone-mockup">
+            <div class="phone-notch"></div>
+            <div class="phone-chat-bubble">
+              <div class="phone-chat-label">Creator voice intent</div>
+              &ldquo;Cut the dead air, add yellow captions, drop a reaction meme on the punchline, and duck a lofi music bed.&rdquo;
+            </div>
+            <div class="phone-video-preview">
+              <div class="phone-wave">
+                <i style="height:40%"></i><i class="hi" style="height:70%"></i><i style="height:55%"></i><i class="sil" style="height:15%"></i><i class="sil" style="height:18%"></i><i style="height:60%"></i><i class="hi" style="height:85%"></i><i style="height:45%"></i><i style="height:65%"></i><i class="sil" style="height:12%"></i><i style="height:50%"></i><i class="hi" style="height:75%"></i><i style="height:35%"></i>
+              </div>
+              <div class="phone-cap">so <span class="hot">openai</span> burned through <span class="hot">billions</span></div>
+              <div class="phone-meta">cuts snap to word boundaries</div>
+            </div>
+            <div class="phone-tags">
+              <span>Swift 6</span>
+              <span>Gemini 3.8</span>
+              <span>Zero-scrub</span>
+            </div>
+          </div>
+          <div class="sticker s1">&minus;14 LUFS</div>
+          <div class="sticker s2">w16 &middot; billions</div>
+          <div class="sticker s3">remove_silence()</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="brand">Team SkyRocket &middot; ClipZ pitch deck</span>
+      <span>Confidential concept proposal</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 2: PROBLEM STATEMENT -->
+<div class="slide">
+  <div class="slide-content">
+    <div class="slide-header">
+      <div>
+        <span class="eyebrow">Market friction</span>
+        <h1 class="slide-title">Problem statement</h1>
+        <p class="slide-subtitle">High freelance editing costs and tedious manual tools keep solo creators from scaling.</p>
+      </div>
+      <div class="slide-number">02 / 07</div>
+    </div>
+
+    <div class="bento-6">
+      <div class="card card-highlight span-4">
+        <div class="metric-big" style="color:var(--yellow);">&#8377;500&ndash;&#8377;1,000</div>
+        <div class="card-title" style="color:#fff;">Prohibitive editing costs in India</div>
+        <p class="card-body">
+          A freelance reel editor charges <strong>&#8377;500 to &#8377;1,000 per video</strong> in India. A solo creator publishing 20&ndash;30 reels a month to grow spends <strong>&#8377;10,000 to &#8377;30,000 every month</strong>, out of reach for students, beginners, and micro-influencers.
+        </p>
+      </div>
+      <div class="card card-amber span-2">
+        <div class="metric-big" style="color:var(--ink);">2&ndash;3 hrs</div>
+        <div class="card-title">The manual editing tax</div>
+        <p class="card-body">
+          Self-editing a 45-second reel takes <strong>2 to 3 hours</strong>: trimming silences, aligning captions word by word, centering face crops, scouring meme archives.
+        </p>
+      </div>
+      <div class="card span-3">
+        <div class="metric-big">6-inch screen</div>
+        <div class="card-title">Clunky mobile editing UX</div>
+        <p class="card-body">
+          Desktop NLEs are overpowered for rapid vertical output. Mobile editors force creators to pinch, split, and scrub millisecond audio boundaries with a thumb on a six-inch screen.
+        </p>
+      </div>
+      <div class="card span-3">
+        <div class="metric-big">Consistency gap</div>
+        <div class="card-title">Creator burnout &amp; stagnation</div>
+        <p class="card-body">
+          Social algorithms reward daily consistency. When each video costs hours of scrubbing or hundreds of rupees, creators burn out and post intermittently.
+        </p>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="brand">Team SkyRocket &middot; ClipZ pitch deck</span>
+      <span>Problem analysis: solo &amp; small creator economy</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: SOLUTION -->
+<div class="slide">
+  <div class="slide-content">
+    <div class="slide-header">
+      <div>
+        <span class="eyebrow">Proposed solution</span>
+        <h1 class="slide-title">Chat in. Reel out.</h1>
+        <p class="slide-subtitle">ClipZ is a Swift iOS app with an agentic editing core. No timelines, just conversation.</p>
+      </div>
+      <div class="slide-number">03 / 07</div>
+    </div>
+
+    <div class="card-flat" style="background:var(--surface); border:1.5px solid var(--ink-18); border-left:4px solid var(--cobalt); color:#fff; margin-bottom:1rem; padding: 1.1rem 1.5rem; display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <span style="font-family:var(--display); font-weight:700; font-size:1.05rem;">Core concept: no timelines, just talk</span>
+        <div style="font-size:.85rem; color:var(--ink-70); margin-top:.2rem;">Creators shoot raw vertical footage and describe what they want in natural language. The agent handles the rest.</div>
+      </div>
+      <span class="chip cobalt" style="margin:0;">native iOS + cloud agent</span>
+    </div>
+
+    <div class="bento-4">
+      <div class="card card-highlight">
+        <div class="card-title" style="color:#fff;">AI director agent</div>
+        <p class="card-body">Translates creator voice prompts into a structured, validated timeline (EDL).</p>
+        <ul class="func-list" style="color:#fff;">
+          <li>plan_edit()</li>
+          <li>ask_user()</li>
+          <li>get_timeline()</li>
+        </ul>
+      </div>
+      <div class="card card-amber">
+        <div class="card-title">Smart silence cuts</div>
+        <p class="card-body">Silero VAD removes pauses and dead air, snapped to real word boundaries.</p>
+        <ul class="func-list">
+          <li>remove_silence()</li>
+          <li>remove_fillers()</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">Auto meme &amp; B-roll</div>
+        <p class="card-body">Identifies jokes, claims, and punchlines from the transcript to enrich storytelling.</p>
+        <ul class="func-list">
+          <li>auto_visuals()</li>
+          <li>insert_meme()</li>
+          <li>auto_sfx()</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">Face track &amp; captions</div>
+        <p class="card-body">Keeps the speaker centered and viewers hooked with animated, word-by-word text.</p>
+        <ul class="func-list">
+          <li>reframe_9x16()</li>
+          <li>add_captions()</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="brand">Team SkyRocket &middot; ClipZ pitch deck</span>
+      <span>Solution architecture: conversational video directing</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: TECH STACK -->
+<div class="slide">
+  <div class="slide-content">
+    <div class="slide-header">
+      <div>
+        <span class="eyebrow">Proposed architecture</span>
+        <h1 class="slide-title">Brain, voice, memory, hands.</h1>
+        <p class="slide-subtitle">A hybrid edge-and-cloud stack built for iOS responsiveness and deterministic media output.</p>
+      </div>
+      <div class="slide-number">04 / 07</div>
+    </div>
+
+    <div class="rows">
+      <div class="srow">
+        <span class="role">Client</span>
+        <span class="name">Swift 6</span>
+        <div>
+          <p>Native stack for responsive gestures and on-device processing: zero-lag local playback, speaker tracking, low-latency speech capture.</p>
+          <div style="margin-top:.4rem;"><span class="chip">SwiftUI</span><span class="chip">AVFoundation</span><span class="chip">Metal</span><span class="chip">CoreML / Vision</span></div>
+        </div>
+      </div>
+      <div class="srow">
+        <span class="role">Intelligence</span>
+        <span class="name">Gemini 3.8 Flash</span>
+        <div>
+          <p>Multimodal reasoning for intent parsing, word-level forced alignment, and a visual critic that inspects rendered frames.</p>
+          <div style="margin-top:.4rem;"><span class="chip">WhisperX</span><span class="chip">Silero VAD</span><span class="chip">typed tool calls</span></div>
+        </div>
+      </div>
+      <div class="srow">
+        <span class="role">Media</span>
+        <span class="name">FFmpeg 7</span>
+        <div>
+          <p>A deterministic, frame-accurate renderer. No model- or user-written string ever reaches a filtergraph unvalidated.</p>
+          <div style="margin-top:.4rem;"><span class="chip">libass</span><span class="chip">OpenCV</span><span class="chip">ElevenLabs</span></div>
+        </div>
+      </div>
+      <div class="srow">
+        <span class="role">Backend</span>
+        <span class="name">FastAPI</span>
+        <div>
+          <p>Asynchronous microservices with live event streams, an immutable version tree, and a distributed render queue.</p>
+          <div style="margin-top:.4rem;"><span class="chip">WebSockets</span><span class="chip">TimescaleDB</span><span class="chip">Redis + Arq</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="brand">Team SkyRocket &middot; ClipZ pitch deck</span>
+      <span>Core principle: the LLM edits structured JSON, never a raw shell string.</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5: ARCHITECTURE OVERVIEW -->
+<div class="slide">
+  <div class="slide-content">
+    <div class="slide-header">
+      <div>
+        <span class="eyebrow">System flow &amp; safeguards</span>
+        <h1 class="slide-title">Architecture overview</h1>
+        <p class="slide-subtitle">A closed-loop agentic workflow: raw capture to a verified 1080&times;1920 export.</p>
+      </div>
+      <div class="slide-number">05 / 07</div>
+    </div>
+
+    <div class="arch-pipeline">
+      <div class="arch-row">
+        <div class="arch-node">
+          <div class="arch-node-step">01</div>
+          <div class="arch-node-title">Swift iOS client</div>
+          <div class="arch-node-desc">Raw 9:16 video + voice command</div>
+        </div>
+        <div class="arch-arrow">&rarr;</div>
+        <div class="arch-node accent">
+          <div class="arch-node-step">02</div>
+          <div class="arch-node-title">Ingestion &amp; analysis</div>
+          <div class="arch-node-desc">Whisper transcript + Silero VAD</div>
+        </div>
+        <div class="arch-arrow">&rarr;</div>
+        <div class="arch-node accent">
+          <div class="arch-node-step">03</div>
+          <div class="arch-node-title">Director agent</div>
+          <div class="arch-node-desc">Gemini Flash plans edits into timeline JSON</div>
+        </div>
+        <div class="arch-arrow">&rarr;</div>
+        <div class="arch-node accent2">
+          <div class="arch-node-step">04</div>
+          <div class="arch-node-title">Media renderer</div>
+          <div class="arch-node-desc">FFmpeg + libass + memes &amp; SFX</div>
+        </div>
+        <div class="arch-arrow">&rarr;</div>
+        <div class="arch-node">
+          <div class="arch-node-step">05</div>
+          <div class="arch-node-title">Critic &amp; export</div>
+          <div class="arch-node-desc">Visual quality check &rarr; 1080p MP4</div>
+        </div>
+      </div>
+
+      <div class="arch-guarantees">
+        <div class="card">
+          <div class="card-title" style="font-size:.95rem; color:var(--cobalt-tint);">Strict safety gate</div>
+          <p class="card-body" style="font-size:.82rem;">The LLM never writes shell commands or raw FFmpeg filters. It edits a strongly typed timeline, so an unvalidated filter injection isn&rsquo;t possible.</p>
+        </div>
+        <div class="card">
+          <div class="card-title" style="font-size:.95rem; color:var(--cobalt-tint);">Instant undo / redo</div>
+          <p class="card-body" style="font-size:.82rem;">Every agent action creates an immutable timeline version in TimescaleDB. Reverting an edit is a zero-cost pointer move.</p>
+        </div>
+        <div class="card">
+          <div class="guard-box">
+            <span style="color:var(--yellow);">export(monetized=true)</span><br>
+            <span class="no">refused: 1 meme is personal-use only</span><br>
+            <span class="ok">&rarr; swap the asset, or export as personal use</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="brand">Team SkyRocket &middot; ClipZ pitch deck</span>
+      <span>Architecture flow: safe, auditable, low-latency</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6: BUSINESS MODEL -->
+<div class="slide">
+  <div class="slide-content">
+    <div class="slide-header">
+      <div>
+        <span class="eyebrow">Monetization</span>
+        <h1 class="slide-title">Business model</h1>
+        <p class="slide-subtitle">Disrupting freelance editing costs with recurring, high-margin SaaS economics.</p>
+      </div>
+      <div class="slide-number">06 / 07</div>
+    </div>
+
+    <div class="card card-amber" style="margin-bottom:1rem; padding: 1rem 1.5rem; display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <span style="font-family:var(--display); font-weight:800; font-size:1.1rem;">The economics for a working creator</span>
+        <div style="font-size:.85rem; margin-top:.15rem;">Freelancers: <strong>&#8377;15,000&ndash;&#8377;30,000/mo</strong> for 30 reels &nbsp;vs.&nbsp; <strong>ClipZ Pro at &#8377;899/mo</strong></div>
+      </div>
+      <span class="chip" style="background:var(--ink); color:var(--yellow); border-color:var(--ink); margin:0;">saves &gt;95% monthly</span>
+    </div>
+
+    <div class="rows" style="border-top: 2px solid var(--ink-18);">
+      <div class="prow">
+        <div>
+          <div class="plan-name">Free</div>
+          <div class="plan-sub">Viral growth tier, for beginners testing the waters</div>
+        </div>
+        <div class="price">&#8377;0 <span>/ month</span></div>
+        <div class="feat">3 exports/month &middot; auto silence &amp; filler removal &middot; standard captions &middot; ClipZ watermark</div>
+      </div>
+      <div class="prow featured">
+        <div>
+          <div style="display:flex; align-items:center; gap:.5rem;">
+            <div class="plan-name">ClipZ Pro</div>
+            <span class="tag-featured">most popular</span>
+          </div>
+          <div class="plan-sub">Flagship tier: direct freelancer replacement</div>
+        </div>
+        <div class="price">&#8377;899 <span>/ mo &middot; $14.99</span></div>
+        <div class="feat"><strong>Unlimited 1080p &amp; 4K exports</strong>, no watermark &middot; autonomous meme &amp; B-roll &middot; &ldquo;my style&rdquo; memory &middot; multilingual captions &middot; priority render queue</div>
+      </div>
+      <div class="prow">
+        <div>
+          <div class="plan-name">Studio / Agency</div>
+          <div class="plan-sub">For production houses and teams</div>
+        </div>
+        <div class="price">&#8377;2,999 <span>/ mo &middot; $49</span></div>
+        <div class="feat">Multi-seat collaboration &middot; custom brand kits &middot; batch processing &middot; direct publish &middot; dedicated support &amp; API</div>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="brand">Team SkyRocket &middot; ClipZ pitch deck</span>
+      <span>Unit economics: estimated compute cost &lt;&#8377;10/reel, 75%+ gross margin target</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7: THANK YOU -->
+<div class="slide">
+  <div class="slide-content">
+    <div class="slide-header">
+      <div>
+        <span class="eyebrow">Roadmap &amp; conclusion</span>
+        <h1 class="slide-title">Thank you</h1>
+        <p class="slide-subtitle">Democratizing production-grade video for every solo creator.</p>
+      </div>
+      <div class="slide-number">07 / 07</div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="card card-highlight" style="margin-bottom:1.2rem;">
+          <div style="font-family:var(--display); font-size:1.5rem; font-weight:800; color:#fff; margin-bottom:.3rem;">&ldquo;You talk. ClipZ cuts.&rdquo;</div>
+          <p class="card-body">Video creation should be about ideas, not editing friction. We want any creator with a smartphone to publish high-retention content at the speed of thought.</p>
+        </div>
+
+        <div class="team-label" style="margin-bottom:0;">Proposed roadmap</div>
+        <div>
+          <div class="step-row">
+            <span class="num">Q1</span>
+            <div><h3>iOS prototype &amp; edge ML</h3><p>Build the SwiftUI recorder, benchmark on-device Silero VAD and face tracking.</p></div>
+          </div>
+          <div class="step-row">
+            <span class="num">Q2</span>
+            <div><h3>Agentic media engine</h3><p>Implement the FastAPI microservice with the Gemini Flash director and FFmpeg renderer.</p></div>
+          </div>
+          <div class="step-row">
+            <span class="num">Q3</span>
+            <div><h3>Closed creator beta</h3><p>Launch a TestFlight cohort with 200 Indian solo creators for real-world tuning.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; justify-content:center; height:100%;">
+        <div class="card" style="text-align:center; padding: 2.2rem 1.8rem;">
+          <div style="font-family:var(--display); font-weight:900; font-size:1.8rem; color:var(--white); letter-spacing:-.02em;">Clip<span style="color:var(--yellow);">Z</span></div>
+          <div style="font-size:.9rem; color:var(--ink-70); margin-top:.3rem; margin-bottom:1.3rem;">Project proposal by Team SkyRocket</div>
+
+          <div style="background:rgba(255,255,255,.05); border:1px solid var(--ink-18); border-radius:12px; padding:1.1rem 1.2rem; margin-bottom:1.3rem; text-align:left; font-family:var(--mono); font-size:.78rem; color:var(--ink-70); line-height:1.8;">
+            <div><strong style="color:var(--white);">Repository</strong> &middot; github.com/vaibhavgupta5/ClipZ</div>
+            <div><strong style="color:var(--white);">Status</strong> &middot; seeking feedback, mentorship &amp; collaboration</div>
+          </div>
+
+          <span class="btn-y">Open for questions &amp; discussion</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span class="brand">Team SkyRocket &middot; ClipZ pitch deck</span>
+      <span>Thank you for your time and feedback</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
