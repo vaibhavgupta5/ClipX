@@ -168,7 +168,10 @@ async def _capture_public_page(
                                     body=b"".join(chunks),
                                 )
                     except Exception:
-                        await route.abort()
+                        try:
+                            await route.abort()
+                        except Exception:
+                            pass
 
                 await context.route("**/*", route_request)
                 page = await context.new_page()

@@ -130,11 +130,10 @@ def _events(card: Card, words: list[Word], ids: dict[str, list[str]]) -> list[di
         for sid, a in zip(ids["items"], anchor_all(card.items, words), strict=True):
             out.append(ev(sid, "reveal", a))
     elif card.family == "proof_focus":
-        out += [
-            ev("body", "reveal", first),
-            ev("src_hl", "reveal", later(first, 2)),
-            ev("body", "focus", later(first, 4)),
-        ]
+        out.append(ev("body", "reveal", first))
+        if "src_hl" in ids.get("annotations", []):
+            out.append(ev("src_hl", "reveal", later(first, 2)))
+        out.append(ev("body", "focus", later(first, 4)))
     elif card.family == "impact_title":
         out.append(ev("title", "reveal", first))
     return out
@@ -234,6 +233,7 @@ def _content(
         crop = _focus_crop(box, size, 940 / (700 if slot == "full" else 380))
         annotations = []
         if box is not None:
+            ids["annotations"] = ["src_hl"]
             x, y, w, h = box
             pad = 0.008
             x0, y0 = max(0.0, x - pad), max(0.0, y - pad)
@@ -289,8 +289,12 @@ def compile_cards(tl: Timeline, cards: list[Card], assets: Assets, accent: str) 
 
     retained = [w.id for w in tl.transcript.words if w.id in timing.words]
     nxt = {a: b for a, b in zip(retained, retained[1:], strict=False)}
+    split_layout = tl.reframe in ("split", "split_bottom", "split_top", "adaptive")
     for n, (card, words) in enumerate(chosen):
-        slot = "panel" if n == 0 and card.family in ("impact_title", "proof_focus") else "full"
+        if split_layout:
+            slot = "panel"
+        else:
+            slot = "panel" if n == 0 and card.family in ("impact_title", "proof_focus") else "full"
         evidence: list[str] = []
         built = _content(card, words, assets, evidence, slot)
         if built is None:

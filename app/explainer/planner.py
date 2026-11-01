@@ -24,7 +24,7 @@ JSON: {"mood":"tech|calm|dramatic|upbeat|serious","accent":"teal|white|yellow|mi
 CUTS ("drop"): remove whole sentences of setup, tangents and repeats so the video lands near
 target_seconds. Never drop numbers, the payoff or caveats. Keep the strongest line last.
 
-CARDS: 5-10 shots covering about half of the kept runtime, each 2-8 s, in order, not
+CARDS: 6-14 shots covering the key claims across the runtime (especially any diagrams or cards requested in creator_brief), each 2-8 s, in order, not
 overlapping, using word ids from the transcript. Per card: id (letters/digits/_), start_word,
 end_word, family, title (2-6 words that state the point), eyebrow (<=24 chars, topic),
 priority 1-5 (5 = hook, payoff, key numbers), tone "risk" only for problems/failures.

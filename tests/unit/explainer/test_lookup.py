@@ -14,6 +14,15 @@ def test_widens_until_something_fits(tmp_path: Path) -> None:
     assert lookup(cat, "video", "zzzz qqqq") is None
 
 
+def test_synonym_lookups_resolve() -> None:
+    from app.providers.local import AssetCatalog
+    cat = AssetCatalog(Path("assets"), Path("work/cache/memes"))
+    meme = lookup(cat, "meme", "sweating accountant")
+    assert meme is not None and meme[0].id == "memes:imgflip-4087833"
+    server = lookup(cat, "video", "server room")
+    assert server is not None and "chip" in server[0].id
+
+
 def test_uncaptured_source_becomes_an_honest_text_card() -> None:
     from app.explainer.models import Card
     from app.explainer.sources import text_for_uncaptured

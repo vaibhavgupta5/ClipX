@@ -765,13 +765,6 @@ def _insert_asset(tool: ToolDef, p: mvp.InsertAssetIn, state: ToolState) -> Tool
             "use an id returned by search_assets",
         )
     kind, item = found
-    shown = next((o for o in state.timeline.overlays if _library_id(o.asset) == item.id), None)
-    if shown is not None and not (kind == "showcase" and p.layout in ("proof", "split_top")):
-        raise OpError(
-            "already_shown",
-            f"{item.id} is already on screen as {shown.id} (at {shown.anchor_word})",
-            "nothing to do, or remove_insert it first to move it",
-        )
     if kind == "meme":
         raise OpError(
             "use_insert_meme",
@@ -779,6 +772,24 @@ def _insert_asset(tool: ToolDef, p: mvp.InsertAssetIn, state: ToolState) -> Tool
             "call insert_meme with top_text/bottom_text",
         )
     dur, start = _place(state.timeline, kind, p.at_word, p.duration_ms, p.layout)
+    end = start + dur / 1000.0
+    shown = next((o for o in state.timeline.overlays if _library_id(o.asset) == item.id), None)
+    if shown is not None:
+        if _is_split(state.timeline, p.layout):
+            try:
+                o_start, o_end = snap.overlay_window(state.timeline, shown)
+                if not (start < o_end - EPS and o_start < end - EPS):
+                    shown = None
+            except Exception:
+                pass
+        elif kind == "showcase" and p.layout in ("proof", "split_top"):
+            shown = None
+    if shown is not None:
+        raise OpError(
+            "already_shown",
+            f"{item.id} is already on screen as {shown.id} (at {shown.anchor_word})",
+            "nothing to do, or remove_insert it first to move it",
+        )
     tl = (
         _hand_over(state.timeline, start) if _is_split(state.timeline, p.layout) else state.timeline
     )
