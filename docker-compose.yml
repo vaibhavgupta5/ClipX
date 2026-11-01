@@ -68,6 +68,7 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/srv/app:ro
+      - ./visuals:/srv/visuals:ro
       - ./assets:/srv/assets:ro
       - ./assets/generated:/srv/assets/generated  # writable: GeneratedAudioStore cache (SFX/voiceover/dub)
       - ./assets/showcase:/srv/assets/showcase  # writable: GeneratedImageStore cache (infographics/web captures)
@@ -117,6 +118,7 @@ services:
       UV_CACHE_DIR: /tmp/uv
     volumes:
       - ./app:/srv/app:ro
+      - ./visuals:/srv/visuals:ro
       - ./assets:/srv/assets:ro
       - ./assets/generated:/srv/assets/generated  # writable: GeneratedAudioStore cache (SFX/voiceover/dub)
       - ./assets/showcase:/srv/assets/showcase  # writable: GeneratedImageStore cache (infographics/web captures)
