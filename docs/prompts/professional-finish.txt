@@ -1,0 +1,22 @@
+studyREQUIRED_TOOLS: get_timeline, remove_insert, generate_infographic, set_transition, add_zooms, search_assets, auto_sfx, add_headline_card, preview, export
+
+Finish the saved professional Short. The structural edit, speech cleanup, captions,
+three original graphics, quiet music and initial SFX are ALREADY applied. Do not
+trim again or add duplicate music. Prior separate runs exercised public screenshot
+capture and annotations; do not add screenshot assets to this final timeline.
+
+Call get_timeline. Remove ONLY ins3 (the current short two-step process card), then
+generate_infographic at w84, duration_ms 5200, variant steps, style dark,
+title "The reload idea", stats [{value:"Clear",label:"Set the cached entry to nil"},
+{value:"Reload",label:"The next require() loads it again"}], source_label
+"Proposed approach; support depends on the host". Other original cards stay.
+
+Call search_assets for an exact Lua icon; a missing relevant asset is fine, do not
+force stock imagery or personal-use logos into the final.
+Set_transition style zoom_in. Add_zooms on w31, w103, w125, scale 1.06, hold_ms 600.
+Add_headline_card at w134 for 1800ms: text "Source: ThePrimeTime", position top,
+style minimal. Keep the opening hook. auto_sfx gain_db -24, on_cuts true,
+on_inserts false, on_zooms true. Keep the existing music at -27dB.
+
+Call preview, then export(profile=final,monetized=true). Wait for every tool result;
+never invent insert IDs or generated outcomes. All required steps precede export.

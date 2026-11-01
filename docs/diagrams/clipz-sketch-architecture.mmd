@@ -1,0 +1,22 @@
+flowchart TB
+    raw[Raw video] --> stt[ElevenLabs STT]
+    stt -->|Transcript| director[Director]
+    prompt[User prompt / intent enhancement] --> director
+    skills[Video editing skills / style constraints] --> director
+    director --> plan[Deterministic tool call plan]
+    plan --> registry[Tool registry / keyword matching]
+    registry -->|Resolved tool calls| executor[Tool executor]
+    registry -. Asset query .-> matcher[Fuzzy asset lookup]
+    library[Manifest-backed asset library / overlays / voiceovers] -. Candidates .-> matcher
+    matcher -. Matched assets .-> executor
+    tools[30–60 tools: FX, B-roll, memes, audio, screenshots,
+animation, subtitles, icons / GIFs, crop, cut, denoise,
+undo, redo, render] --> executor
+    executor -->|Each output| judge[LLM as a judge]
+    judge -->|Fail / undo tool call| executor
+    judge -->|Pass| final[Approved edit / render and deliver]
+    executor -. Context .-> yoga[(YogaDB / recall context)]
+    executor -. Timing and speed logs .-> tiger[(TigerDB / logging)]
+    %% Concept transcribed from the supplied handwritten sketch.
+    %% Asset-query and bottom constraint wording are interpreted.
+    %% Database names are preserved as written, without product verification.

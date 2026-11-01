@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1480" viewBox="0 0 1440 1480" role="img" aria-labelledby="title desc" font-family="Inter, Arial, sans-serif">
+<title id="title">ClipZ — AI video editing architecture</title><desc id="desc">Raw video is transcribed by ElevenLabs STT. A Director combines the transcript, enhanced user intent and editing skills into a deterministic tool call plan. A registry resolves tool names, and fuzzy matching finds manifest-backed assets. An executor produces edits that an LLM judge passes or undoes. YogaDB stores recall context and TigerDB stores execution timing logs. This diagram interprets a handwritten concept, rather than verifying an implementation.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#245b87"/></marker></defs>
+<rect width="1440" height="1480" fill="#f8fafc"/>
+<text x="40" y="48" font-size="30" font-weight="600" fill="#12263a" text-anchor="start">ClipZ / AI video editing architecture</text>
+<text x="40" y="80" font-size="18" font-weight="400" fill="#485d70" text-anchor="start">Concept translated from the handwritten sketch</text>
+<text x="40" y="150" font-size="17" font-weight="600" fill="#485d70" text-anchor="start">01  INGEST &amp; PLAN</text>
+<text x="40" y="675" font-size="17" font-weight="600" fill="#485d70" text-anchor="start">02  RESOLVE &amp; EXECUTE</text>
+<text x="40" y="1040" font-size="17" font-weight="600" fill="#485d70" text-anchor="start">03  REVIEW &amp; REMEMBER</text>
+<rect x="510" y="115" width="420" height="75" rx="12" fill="#ffffff" stroke="#c6d3de"/>
+<text x="532" y="147" font-size="21" font-weight="600" fill="#12263a" text-anchor="start">Raw video</text>
+<rect x="510" y="235" width="420" height="90" rx="12" fill="#ffffff" stroke="#c6d3de"/>
+<text x="532" y="267" font-size="21" font-weight="600" fill="#12263a" text-anchor="start">Transcription</text>
+<text x="532" y="296" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">ElevenLabs STT → transcript</text>
+<rect x="510" y="375" width="420" height="105" rx="12" fill="#eaf3fc" stroke="#c6d3de"/>
+<text x="532" y="407" font-size="21" font-weight="600" fill="#12263a" text-anchor="start">Director</text>
+<text x="532" y="436" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Understands intent and plans edits</text>
+<rect x="510" y="525" width="420" height="85" rx="12" fill="#ffffff" stroke="#c6d3de"/>
+<text x="532" y="557" font-size="21" font-weight="600" fill="#12263a" text-anchor="start">Deterministic tool call plan</text>
+<text x="532" y="586" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Ordered edit operations + arguments</text>
+<rect x="510" y="655" width="420" height="95" rx="12" fill="#ffffff" stroke="#c6d3de"/>
+<text x="532" y="687" font-size="21" font-weight="600" fill="#12263a" text-anchor="start">Tool registry</text>
+<text x="532" y="716" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Keyword matching → tool resolution</text>
+<rect x="510" y="805" width="420" height="140" rx="12" fill="#eaf3fc" stroke="#c6d3de"/>
+<text x="532" y="837" font-size="21" font-weight="600" fill="#12263a" text-anchor="start">Tool executor</text>
+<text x="532" y="866" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Execute the resolved edit operations</text>
+<text x="532" y="891" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Generate each intermediate output</text>
+<rect x="510" y="1030" width="420" height="100" rx="12" fill="#eaf3fc" stroke="#c6d3de"/>
+<text x="532" y="1062" font-size="21" font-weight="600" fill="#12263a" text-anchor="start">LLM as a judge</text>
+<text x="532" y="1091" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Evaluate each tool output</text>
+<rect x="510" y="1210" width="420" height="90" rx="12" fill="#ffffff" stroke="#c6d3de"/>
+<text x="532" y="1242" font-size="21" font-weight="600" fill="#12263a" text-anchor="start">Approved edit</text>
+<text x="532" y="1271" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Render / deliver edited video</text>
+<path d="M720 190 V235" fill="none" stroke="#245b87" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M720 325 V375" fill="none" stroke="#245b87" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="741" y="353" font-size="16" font-weight="400" fill="#485d70" text-anchor="start">Transcript</text>
+<path d="M720 480 V525" fill="none" stroke="#245b87" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M720 610 V655" fill="none" stroke="#245b87" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M720 750 V805" fill="none" stroke="#245b87" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="741" y="783" font-size="16" font-weight="400" fill="#485d70" text-anchor="start">Resolved tool calls</text>
+<path d="M720 945 V1030" fill="none" stroke="#245b87" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="741" y="992" font-size="16" font-weight="400" fill="#485d70" text-anchor="start">Each output</text>
+<path d="M720 1130 V1210" fill="none" stroke="#245b87" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="741" y="1176" font-size="16" font-weight="400" fill="#485d70" text-anchor="start">Pass</text>
+<rect x="40" y="340" width="360" height="100" rx="12" fill="#ffffff" stroke="#c6d3de"/>
+<text x="62" y="372" font-size="21" font-weight="600" fill="#12263a" text-anchor="start">User prompt</text>
+<text x="62" y="401" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Understand and enhance intent</text>
+<rect x="40" y="485" width="360" height="105" rx="12" fill="#ffffff" stroke="#c6d3de"/>
+<text x="62" y="517" font-size="21" font-weight="600" fill="#12263a" text-anchor="start">Editing skills &amp; constraints</text>
+<text x="62" y="546" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Video edit skills</text>
+<text x="62" y="571" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Style / workflow guidance*</text>
+<path d="M400 390 H510" fill="none" stroke="#245b87" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M400 535 H455 V450 H510" fill="none" stroke="#245b87" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="40" y="735" width="360" height="225" rx="12" fill="#ffffff" stroke="#c6d3de"/>
+<text x="62" y="767" font-size="21" font-weight="600" fill="#12263a" text-anchor="start">Editing tool set</text>
+<text x="62" y="796" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">30–60 tools (as sketched)</text>
+<text x="62" y="821" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">FX · B-roll · memes · audio / BGM</text>
+<text x="62" y="846" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Screenshots (live browser)</text>
+<text x="62" y="871" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Animation · subtitles · icons / GIFs</text>
+<text x="62" y="896" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Crop · cut · denoise</text>
+<text x="62" y="921" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Undo · redo · render</text>
+<path d="M400 860 H510" fill="none" stroke="#245b87" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="1040" y="655" width="360" height="120" rx="12" fill="#ffffff" stroke="#c6d3de"/>
+<text x="1062" y="687" font-size="21" font-weight="600" fill="#12263a" text-anchor="start">Asset lookup</text>
+<text x="1062" y="716" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Fuzzy match the asset query</text>
+<text x="1062" y="741" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Overlays · voiceovers</text>
+<rect x="1040" y="835" width="360" height="100" rx="12" fill="#ffffff" stroke="#c6d3de"/>
+<text x="1062" y="867" font-size="21" font-weight="600" fill="#12263a" text-anchor="start">Manifest-backed asset library</text>
+<text x="1062" y="896" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Available assets and metadata</text>
+<path d="M930 700 H1040" fill="none" stroke="#245b87" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)" stroke-dasharray="6 5"/>
+<text x="950" y="684" font-size="16" font-weight="400" fill="#485d70" text-anchor="start">Asset query</text>
+<path d="M1220 835 V775" fill="none" stroke="#245b87" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)" stroke-dasharray="6 5"/>
+<text x="1238" y="810" font-size="16" font-weight="400" fill="#485d70" text-anchor="start">Candidates</text>
+<path d="M1040 745 H1005 V900 H930" fill="none" stroke="#245b87" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)" stroke-dasharray="6 5"/>
+<text x="1038" y="802" font-size="16" font-weight="400" fill="#485d70" text-anchor="start">Matched assets</text>
+<path d="M930 1080 H985 V850 H930" fill="none" stroke="#245b87" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="1004" y="1001" font-size="16" font-weight="400" fill="#485d70" text-anchor="start">Fail → undo tool call</text>
+<rect x="40" y="1200" width="360" height="145" rx="12" fill="#ffffff" stroke="#c6d3de"/>
+<text x="62" y="1232" font-size="21" font-weight="600" fill="#12263a" text-anchor="start">Context &amp; execution records</text>
+<text x="62" y="1261" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">YogaDB — recall context</text>
+<text x="62" y="1286" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">TigerDB — timing / speed logs</text>
+<text x="62" y="1311" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Save context after edit operations</text>
+<path d="M510 915 H445 V1268 H400" fill="none" stroke="#245b87" stroke-width="2" stroke-linejoin="round" marker-end="url(#arrow)" stroke-dasharray="6 5"/>
+<text x="246" y="1157" font-size="16" font-weight="400" fill="#485d70" text-anchor="start">Context + logs</text>
+<path d="M40 1390 H1400" stroke="#c6d3de"/>
+<text x="40" y="1420" font-size="17" font-weight="400" fill="#485d70" text-anchor="start">Solid arrows: processing / control     Dashed arrows: supporting data</text>
+<text x="40" y="1450" font-size="16" font-weight="400" fill="#485d70" text-anchor="start">* Interpretation: unclear asset-query and bottom constraint labels are generalized. Database names follow the sketch.</text>
+</svg>

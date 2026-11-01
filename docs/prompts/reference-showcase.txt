@@ -1,0 +1,17 @@
+Edit this explanation as a restrained, page-led technical Short.
+Keep the strongest hook and the speaker's caveats or corrections. Remove repetition,
+fillers and awkward pauses without changing the claim.
+Open with the speaker below a relevant real project page. For the body, show authentic
+source material on black with clear text highlights, short slide-up entrances and
+subtle page pull-outs or pans. Alternate useful page details with one concise labelled
+technical flow diagram. Avoid repeating the same page crop for every sentence.
+Use small white sentence-case phrase captions below the page, hard cuts, a quiet music
+bed and subtle SFX. Return to the speaker for the conclusion. Inspect a rendered preview
+for phone readability, cropped faces, factual accuracy and a natural audio mix before
+exporting. State source-quality limits and unresolved checks honestly.
+
+For the saved Lua test, use official sources:
+https://www.lua.org/manual/5.1/manual.html#pdf-require
+https://www.lua.org/manual/5.1/manual.html#pdf-package.loaded
+https://github.com/neovim/neovim
+The owner explicitly approved real screenshots for this non-commercial test export.

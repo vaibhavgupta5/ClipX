@@ -1,0 +1,69 @@
+REQUIRED_TOOLS: get_timeline, plan_edit, trim, delete_range, remove_silence, remove_fillers, apply_showcase_style, reframe_9x16, add_captions, denoise, normalize_loudness, add_headline_card, search_assets, generate_infographic, capture_webpage, annotate_image, remove_insert, set_transition, add_zooms, add_music, add_sfx, auto_sfx, preview, export
+
+Edit this livestream explanation into a polished YouTube Short. Run the actual tools,
+not just a proposed plan. Exercise as many RELEVANT editing tools as useful while
+keeping one coherent visual style. Finish with a real preview and final export.
+
+Creative direction: premium developer explainer. Charcoal, warm white and soft mint;
+clear code callouts, restrained motion, excellent phone legibility, clean dialogue,
+quiet music and a few precise sound accents. Preserve what the speaker really says.
+Do not dub or replace their narration. No random memes or generic stock B-roll.
+
+Structure:
+- Read get_timeline and call plan_edit with the narrative and grounded moments.
+- Trim to w27..w138 (100ms padding): start on the question about Lua/nil; end after
+  the speaker admits the idea does not work here. Preserve the uncertainty/correction.
+- delete_range w44..w54 removes the redundant module-loader tangent. Remove only
+  real silence with remove_silence(min_silence_ms=450,padding_ms=100), then remove_fillers.
+- apply_showcase_style, then reframe_9x16(mode="blur") for a filled, contained source.
+  Add captions: word_highlight, 3 words per line, size_px 64, white base, #99EFCC
+  highlight, no uppercase, no pop, center_lower. Use set_caption_style if refinement
+  is needed; never enlarge captions to cover the code or face.
+- Denoise gently using the available denoise tool and normalize_loudness to -14 LUFS.
+
+Visuals:
+- FIRST exercise the screenshot draft path, before placing any generated diagrams.
+  capture_webpage https://github.com/neovim/neovim at w31, duration_ms 1500, desktop,
+  showcase layout. WAIT for its actual asset_id and insert ID in the result.
+  THEN annotate_image on that real asset_id at w112, duration_ms 1500, with one mint
+  box around the repository header. WAIT for the result. NEVER use a placeholder
+  asset ID or batch a dependent call before the preceding result is available.
+  THEN remove_insert for BOTH screenshot-based overlay IDs, keeping their images in
+  the catalog. Verify the timeline has no screenshot inserts before moving on.
+- Search assets for an exact Lua/Neovim match; skip insertion if no strong match exists.
+- Add a SHORT top hook using add_headline_card: "Reload without /reload?", minimal
+  style, at w27, duration 2500ms. Avoid a permanent banner over the explanation.
+- Search the assets for an exact Lua/Neovim match. Only insert something if it is
+  truly relevant; generated graphics are better than a weak match.
+- Use generate_infographic for approximately THREE focused moments, not walls of
+  text. New variants: code, steps, metrics. Use dark style consistently and showcase
+  layout (gentle push-in is built in). One claim per card; max 2 rows unless it needs
+  a short process. Keep useful reading time, 3200-5500ms, without overlapping cards.
+  Suggested grounded moments:
+    w59: title "Load once. Cache the module.", code variant,
+         value "require()", label "Loads the module into memory".
+    w84 OR w110: title "The reload idea", steps variant,
+         value "Clear", label "Set the cached entry to nil";
+         value "Reload", label "The next require() loads it again".
+         source_label "Proposed approach; support depends on the host".
+    w131: title "The important catch", code variant,
+          value "Not here.", label "This host does not support that approach".
+  Use real surviving word IDs and adapt timing so cards never overlap.
+- The screenshots above are review drafts, and are removed before the final export.
+  The final uses source footage and original diagrams. Do not waive asset restrictions.
+
+Polish:
+- Use set_transition("zoom_in") at actual cuts. Keep micro silence trims clean.
+- Add 2-3 subtle source punch-ins (scale 1.06-1.08) on surviving words NOT hidden under
+  a full-screen card. Example candidates: w31, w69, w103, w125.
+- Add_music: lofi or electronic, calm/focused, level_db -27. Keep dialogue clearly on
+  top with the renderer's ducking. Local library tracks only.
+- Add one soft click/ding on the require() explanation (gain_db around -24). auto_sfx
+  LAST at gain_db -24, on real cuts and zooms; do not add a swoosh to every diagram.
+  No generated free-plan audio and no voiceover are needed for this edit.
+- Add a small source credit near the end if it fits: "Source: ThePrimeTime".
+- Verify get_timeline: structure preserved, no screenshot draft overlays remain,
+  original cards have readable durations, music + SFX present, no conflicting inserts.
+- preview once when the edit is complete, then export(profile="final",monetized=true)
+  as the last edit action. If a tool rejects a call, fix its stated reason and retry
+  once. Never invent successful tool outcomes. Report missing capabilities honestly.

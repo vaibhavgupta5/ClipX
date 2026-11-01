@@ -1,0 +1,298 @@
+{
+  "retrieved_on": "2026-10-31",
+  "method": "Public GitHub metadata, pinned repository files and official docs; source inspection only, no upstream runtime benchmark.",
+  "repositories": [
+    {
+      "repo": "gyoridavid/short-video-maker",
+      "url": "https://github.com/gyoridavid/short-video-maker",
+      "stars": 1452,
+      "license": "MIT",
+      "pushed_at": "2025-06-21T11:17:09Z",
+      "archived": false,
+      "commit": "9bb9a212ced86caa7e09099c382da1a44d638760",
+      "recommended_role": "Secondary scene-input reference",
+      "critical_limit": "Stock/TTS emphasis; queue TODOs; last push June 2025.",
+      "license_reviewed": "MIT"
+    },
+    {
+      "repo": "motion-canvas/motion-canvas",
+      "url": "https://github.com/motion-canvas/motion-canvas",
+      "stars": 19614,
+      "license": "MIT",
+      "pushed_at": "2026-07-02T20:01:32Z",
+      "archived": false,
+      "commit": "7b91435c301d530351dcf5ebb91dd139c002e405",
+      "recommended_role": "Borrow named-cue pattern",
+      "critical_limit": "Do not add a second animation runtime.",
+      "license_reviewed": "MIT"
+    },
+    {
+      "repo": "remotion-dev/remotion",
+      "url": "https://github.com/remotion-dev/remotion",
+      "stars": 69340,
+      "license": "NOASSERTION",
+      "pushed_at": "2026-10-31T13:07:17Z",
+      "archived": false,
+      "commit": null,
+      "recommended_role": "Fallback engine candidate",
+      "critical_limit": "Custom license eligibility; avoid two mandatory scene engines.",
+      "license_reviewed": "Remotion License"
+    },
+    {
+      "repo": "0xsline/OpenChatCut",
+      "url": "https://github.com/0xsline/OpenChatCut",
+      "stars": 2816,
+      "license": "AGPL-3.0",
+      "pushed_at": "2026-10-21T13:09:03Z",
+      "archived": false,
+      "commit": "7fa4b7903e7ebecf832a36249f0c0c755200cc17",
+      "recommended_role": "Borrow editable-scene concept",
+      "critical_limit": "AGPL; documented preview/export traps. No code integration proposed.",
+      "license_reviewed": "AGPL-3.0"
+    },
+    {
+      "repo": "diffusionstudio/core",
+      "url": "https://github.com/diffusionstudio/core",
+      "stars": 1252,
+      "license": "MPL-2.0",
+      "pushed_at": "2025-11-18T19:10:12Z",
+      "archived": false,
+      "commit": "4e784a7136b3b08e7b9b0c69504085897bf18647",
+      "recommended_role": "Do not select for current backend",
+      "critical_limit": "Browser focus plus README watermark/key terms; evaluate terms separately.",
+      "license_reviewed": "MPL-2.0"
+    },
+    {
+      "repo": "ManimCommunity/manim",
+      "url": "https://github.com/ManimCommunity/manim",
+      "stars": 42059,
+      "license": "MIT",
+      "pushed_at": "2026-10-29T13:06:31Z",
+      "archived": false,
+      "commit": null,
+      "recommended_role": "Defer specialty runtime",
+      "critical_limit": "Useful for math; unnecessary default for UI-style explainers.",
+      "license_reviewed": "MIT"
+    },
+    {
+      "repo": "harry0703/MoneyPrinterTurbo",
+      "url": "https://github.com/harry0703/MoneyPrinterTurbo",
+      "stars": 136808,
+      "license": "MIT",
+      "pushed_at": "2026-10-31T09:57:14Z",
+      "archived": false,
+      "commit": null,
+      "recommended_role": "Secondary workflow reference",
+      "critical_limit": "Broad generation/provider workflow does not prove diagram quality.",
+      "license_reviewed": "MIT"
+    },
+    {
+      "repo": "heygen-com/hyperframes",
+      "url": "https://github.com/heygen-com/hyperframes",
+      "stars": 76407,
+      "license": "Apache-2.0",
+      "pushed_at": "2026-10-31T13:06:29Z",
+      "archived": false,
+      "commit": "a04b45a6db0d1f724be9cf1985c3b13657195f0d",
+      "recommended_role": "Primary scene runtime",
+      "critical_limit": "Ready-timeout handling and browser/font parity need strict integration tests.",
+      "license_reviewed": "Apache-2.0"
+    },
+    {
+      "repo": "browser-use/video-use",
+      "stars": 30266,
+      "forks": 3506,
+      "pushed_at": "2026-10-08T22:17:01Z",
+      "archived": false,
+      "license": "MIT",
+      "branch": "main",
+      "description": "Edit videos with coding agents",
+      "url": "https://github.com/browser-use/video-use",
+      "size_kb": 923,
+      "retrieved_on": "2026-10-31",
+      "commit": "43cfc566833548093455c9d4a46bd69913b7e552",
+      "recommended_role": "Borrow inspection pattern",
+      "critical_limit": "Skill/helper scripts; raw-filter escape hatch does not fit our typed tools.",
+      "license_reviewed": "MIT"
+    },
+    {
+      "repo": "MakeMyClip/editor",
+      "stars": 5,
+      "forks": 3,
+      "pushed_at": "2026-10-29T22:54:45Z",
+      "archived": false,
+      "license": "MIT",
+      "branch": "main",
+      "description": "AI-native video editor \u2014 talk to make video. Trim, zoom, caption, and assemble clips from any AI agent (Claude, Cursor, Copilot). Delivered as an MCP server + agent skill https://www.npmjs.com/package/@makemyclip/editor.",
+      "url": "https://github.com/MakeMyClip/editor",
+      "size_kb": 670,
+      "retrieved_on": "2026-10-31",
+      "commit": "782059842d3b2d3b15be55d5ec47035c1f4cbec5",
+      "recommended_role": "Borrow revision-aware mutation pattern",
+      "critical_limit": "Early project; compiler rejects several multitrack export cases.",
+      "license_reviewed": "MIT"
+    },
+    {
+      "repo": "OpenCut-app/OpenCut",
+      "stars": 96937,
+      "forks": 9628,
+      "pushed_at": "2026-09-24T09:24:44Z",
+      "archived": false,
+      "license": "MIT",
+      "branch": "main",
+      "description": "The open-source CapCut alternative",
+      "url": "https://github.com/OpenCut-app/OpenCut",
+      "size_kb": 28243,
+      "retrieved_on": "2026-10-31",
+      "commit": "e668010778568641babef2cc40be4703ae6916d6",
+      "recommended_role": "Watch, not core dependency",
+      "critical_limit": "Current branch redesign; inspected desktop preview panel is a placeholder.",
+      "license_reviewed": "MIT"
+    },
+    {
+      "repo": "veedstudio/open-edit",
+      "stars": 1756,
+      "forks": 120,
+      "pushed_at": "2026-10-07T12:33:49Z",
+      "archived": false,
+      "license": "Apache-2.0",
+      "branch": "main",
+      "description": "Open-source, agent-driven editing pipeline: create subtitles, motion graphics, slides, edit and render videos.",
+      "url": "https://github.com/veedstudio/open-edit",
+      "size_kb": 32385,
+      "retrieved_on": "2026-10-31",
+      "commit": "1d3b75b7f46280061bae5ab4cb47b9538276d8fb",
+      "recommended_role": "Borrow virtual-clock/retiming boundaries",
+      "critical_limit": "Hosted services are separate; keep our jobs and audio assembly.",
+      "license_reviewed": "Apache-2.0"
+    }
+  ],
+  "files": [
+    {
+      "repo": "heygen-com/hyperframes",
+      "path": "packages/cli/src/capture/captureCompositionFrame.ts",
+      "blob_sha": "5cf0ec661454d4687a46472e435517a735aa0314",
+      "commit": "a04b45a6db0d1f724be9cf1985c3b13657195f0d",
+      "url": "https://github.com/heygen-com/hyperframes/blob/a04b45a6db0d1f724be9cf1985c3b13657195f0d/packages/cli/src/capture/captureCompositionFrame.ts"
+    },
+    {
+      "repo": "heygen-com/hyperframes",
+      "path": "packages/cli/src/commands/render/plan.ts",
+      "blob_sha": "5247008e33905e511a3c2042ad8ab387358c98e6",
+      "commit": "a04b45a6db0d1f724be9cf1985c3b13657195f0d",
+      "url": "https://github.com/heygen-com/hyperframes/blob/a04b45a6db0d1f724be9cf1985c3b13657195f0d/packages/cli/src/commands/render/plan.ts"
+    },
+    {
+      "repo": "heygen-com/hyperframes",
+      "path": "docs/concepts/frame-adapters.mdx",
+      "blob_sha": "9b2c75be5f03aa8c45936dbbd39296898ba1c04f",
+      "commit": "a04b45a6db0d1f724be9cf1985c3b13657195f0d",
+      "url": "https://github.com/heygen-com/hyperframes/blob/a04b45a6db0d1f724be9cf1985c3b13657195f0d/docs/concepts/frame-adapters.mdx"
+    },
+    {
+      "repo": "motion-canvas/motion-canvas",
+      "path": "packages/core/src/scenes/timeEvents/TimeEvents.ts",
+      "blob_sha": "fa15fac9a8a4590278fb4366d91e01c41bd6a25d",
+      "commit": "7b91435c301d530351dcf5ebb91dd139c002e405",
+      "url": "https://github.com/motion-canvas/motion-canvas/blob/7b91435c301d530351dcf5ebb91dd139c002e405/packages/core/src/scenes/timeEvents/TimeEvents.ts"
+    },
+    {
+      "repo": "MakeMyClip/editor",
+      "path": "src/timeline/document-store.ts",
+      "blob_sha": "d3f71c14272d86cd7cf1e1397a4527901e5dc838",
+      "commit": "782059842d3b2d3b15be55d5ec47035c1f4cbec5",
+      "url": "https://github.com/MakeMyClip/editor/blob/782059842d3b2d3b15be55d5ec47035c1f4cbec5/src/timeline/document-store.ts"
+    },
+    {
+      "repo": "MakeMyClip/editor",
+      "path": "src/timeline/composition.ts",
+      "blob_sha": "5d41752aa75ce27e708efc972b5a2474bc15225a",
+      "commit": "782059842d3b2d3b15be55d5ec47035c1f4cbec5",
+      "url": "https://github.com/MakeMyClip/editor/blob/782059842d3b2d3b15be55d5ec47035c1f4cbec5/src/timeline/composition.ts"
+    },
+    {
+      "repo": "browser-use/video-use",
+      "path": "helpers/render.py",
+      "blob_sha": "b1efdcc22df78b2a02af441619bd59ca8a1cf1de",
+      "commit": "43cfc566833548093455c9d4a46bd69913b7e552",
+      "url": "https://github.com/browser-use/video-use/blob/43cfc566833548093455c9d4a46bd69913b7e552/helpers/render.py"
+    },
+    {
+      "repo": "browser-use/video-use",
+      "path": "helpers/timeline_view.py",
+      "blob_sha": "0b8f72a71ebc168555242f7f087b3ebb92f79d53",
+      "commit": "43cfc566833548093455c9d4a46bd69913b7e552",
+      "url": "https://github.com/browser-use/video-use/blob/43cfc566833548093455c9d4a46bd69913b7e552/helpers/timeline_view.py"
+    },
+    {
+      "repo": "gyoridavid/short-video-maker",
+      "path": "src/short-creator/ShortCreator.ts",
+      "blob_sha": "28497b99ff6a12c0cccc7ca801a56ccee9ae59de",
+      "commit": "9bb9a212ced86caa7e09099c382da1a44d638760",
+      "url": "https://github.com/gyoridavid/short-video-maker/blob/9bb9a212ced86caa7e09099c382da1a44d638760/src/short-creator/ShortCreator.ts"
+    },
+    {
+      "repo": "veedstudio/open-edit",
+      "path": "cli/src/render/page-runtime.ts",
+      "blob_sha": "8c9a8f0be846c2e06b71f51b3497b4748eeb9bbe",
+      "commit": "1d3b75b7f46280061bae5ab4cb47b9538276d8fb",
+      "url": "https://github.com/veedstudio/open-edit/blob/1d3b75b7f46280061bae5ab4cb47b9538276d8fb/cli/src/render/page-runtime.ts"
+    },
+    {
+      "repo": "OpenCut-app/OpenCut",
+      "path": "apps/desktop/src/panels/preview.rs",
+      "blob_sha": "e8a8069a824cd55bdc29c82570c81d4a14b8f513",
+      "commit": "e668010778568641babef2cc40be4703ae6916d6",
+      "url": "https://github.com/OpenCut-app/OpenCut/blob/e668010778568641babef2cc40be4703ae6916d6/apps/desktop/src/panels/preview.rs"
+    },
+    {
+      "repo": "harry0703/MoneyPrinterTurbo",
+      "path": "app/services/task.py",
+      "blob_sha": "46b7854fbbd9aa280e3d81d3857030fa19442c62",
+      "commit": null,
+      "url": "https://github.com/harry0703/MoneyPrinterTurbo/blob/main/app/services/task.py"
+    },
+    {
+      "repo": "heygen-com/hyperframes",
+      "path": "LICENSE",
+      "blob_sha": "ae06b37e1c5116ccfaa615ac25ec1aabf5658d8c",
+      "commit": "a04b45a6db0d1f724be9cf1985c3b13657195f0d",
+      "url": "https://github.com/heygen-com/hyperframes/blob/a04b45a6db0d1f724be9cf1985c3b13657195f0d/LICENSE"
+    },
+    {
+      "repo": "0xsline/OpenChatCut",
+      "path": "LICENSE",
+      "blob_sha": "be3f7b28e564e7dd05eaf59d64adba1a4065ac0e",
+      "commit": "7fa4b7903e7ebecf832a36249f0c0c755200cc17",
+      "url": "https://github.com/0xsline/OpenChatCut/blob/7fa4b7903e7ebecf832a36249f0c0c755200cc17/LICENSE"
+    },
+    {
+      "repo": "remotion-dev/remotion",
+      "path": "LICENSE.md",
+      "blob_sha": "d655e2df830bbe19285e55607aefff636ed93d7b",
+      "commit": null,
+      "url": "https://github.com/remotion-dev/remotion/blob/main/LICENSE.md"
+    },
+    {
+      "repo": "motion-canvas/motion-canvas",
+      "path": "packages/core/src/scenes/timeEvents/ReadOnlyTimeEvents.ts",
+      "blob_sha": "c82919ea5e452b9036cdb2f6df5cfbf5bae68e14",
+      "commit": "7b91435c301d530351dcf5ebb91dd139c002e405",
+      "url": "https://github.com/motion-canvas/motion-canvas/blob/7b91435c301d530351dcf5ebb91dd139c002e405/packages/core/src/scenes/timeEvents/ReadOnlyTimeEvents.ts"
+    },
+    {
+      "repo": "0xsline/OpenChatCut",
+      "path": "shared/timeline-geometry.ts",
+      "blob_sha": "97b147b0b28f02416f41604dad28c1bade3faed8",
+      "commit": "7fa4b7903e7ebecf832a36249f0c0c755200cc17",
+      "url": "https://github.com/0xsline/OpenChatCut/blob/7fa4b7903e7ebecf832a36249f0c0c755200cc17/shared/timeline-geometry.ts"
+    },
+    {
+      "repo": "MakeMyClip/editor",
+      "path": "src/timeline/compile.ts",
+      "blob_sha": "3e693014b4981234ac18ab6eb893653972f03df2",
+      "commit": "782059842d3b2d3b15be55d5ec47035c1f4cbec5",
+      "url": "https://github.com/MakeMyClip/editor/blob/782059842d3b2d3b15be55d5ec47035c1f4cbec5/src/timeline/compile.ts"
+    }
+  ]
+}
