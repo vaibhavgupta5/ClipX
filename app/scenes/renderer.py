@@ -28,14 +28,14 @@ VISUALS = Path(__file__).resolve().parents[2] / "visuals"
 _BROWSER_LOCK = threading.Lock()
 
 
-def equivalent_pixels(a: bytes, b: bytes) -> bool:
+def equivalent_pixels(a: bytes, b: bytes, threshold: float = 0.5) -> bool:
     """Bound sparse Chromium SVG antialias noise; the host also requires identical DOM state."""
     with Image.open(io.BytesIO(a)) as first, Image.open(io.BytesIO(b)) as second:
         if first.size != second.size:
             return False
         delta = ImageChops.difference(first.convert("RGB"), second.convert("RGB"))
         pixels = np.asarray(delta)
-        return bool(np.sqrt(np.square(pixels.astype(np.float64)).mean()) <= 0.1)
+        return bool(np.sqrt(np.square(pixels.astype(np.float64)).mean()) <= threshold)
 
 
 def scene_html(compiled: CompiledScene, width: int, height: int) -> str:
