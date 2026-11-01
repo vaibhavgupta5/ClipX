@@ -3,7 +3,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -124,6 +124,26 @@ class Settings(BaseSettings):
         default="", description="OTLP endpoint (empty = no-op tracer)"
     )
     LOG_LEVEL: str = Field(default="INFO", description="Root log level")
+
+    @field_validator(
+        "CLAUDE_PLANNER_MODEL",
+        "CLAUDE_MODEL",
+        "CLAUDE_LLM_EFFORT",
+        "LLM_PROVIDER",
+        "GEMINI_PLANNER_MODEL",
+        "GEMINI_MODEL",
+        "GEMINI_FALLBACK_MODELS",
+        "GEMINI_THINKING_LEVEL",
+        "GEMINI_PLANNER_THINKING_LEVEL",
+        "WHISPER_MODEL",
+        "DEFAULT_CAPTION_SCRIPT",
+        mode="before",
+    )
+    @classmethod
+    def _strip_inline_comments(cls, v: object) -> object:
+        if isinstance(v, str):
+            return v.split("#")[0].strip()
+        return v
 
     @property
     def elevenlabs_plan(self) -> Literal["free", "paid"]:
