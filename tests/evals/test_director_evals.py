@@ -10,16 +10,43 @@ import pytest
 from app.agent.context import project_data, system_prompt
 from app.agent.director import run_director
 from app.providers.fakes import ScriptedToolLLM
+from app.providers.local import LibraryItem
 from tests.evals.cases import CASES, Case, workspace
 
 LIVE_PASS_RATE = 0.85
+
+
+class DummyAudioGenerator:
+    async def sound(self, prompt: str, duration_s: float) -> LibraryItem:
+        return LibraryItem(
+            id="sfx:generated-dummy",
+            file="generated/dummy.mp3",
+            title=prompt,
+            tags=["sfx", "generated"],
+            source="elevenlabs",
+            license="custom",
+            commercial_use=True,
+            duration_s=duration_s,
+        )
+
+    async def voice(self, text: str) -> LibraryItem:
+        return LibraryItem(
+            id="vo:generated-dummy",
+            file="generated/dummy-vo.mp3",
+            title=text,
+            tags=["voiceover", "generated"],
+            source="elevenlabs",
+            license="custom",
+            commercial_use=True,
+            duration_s=2.0,
+        )
 
 
 async def _run(case: Case, llm: object) -> list[str]:
     ws = workspace(case.words, case.lang)
     tl = ws.timeline()
     system = system_prompt(project_data(tl, ws.speech, ws.fillers))
-    result = await run_director(llm, ws, system, case.message)  # type: ignore[arg-type]
+    result = await run_director(llm, ws, system, case.message, generator=DummyAudioGenerator())  # type: ignore[arg-type]
     return [reason for check in case.expect if (reason := check(result, ws)) is not None]
 
 

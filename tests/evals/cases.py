@@ -7,9 +7,11 @@ and the live Gemini run (`make eval-live`), so the live score measures the model
 
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from app.agent.director import DirectorResult
 from app.analysis.models import FillerHit, SpeechRange
+from app.providers.local import AssetCatalog
 from app.providers.tools import ToolCall, ToolTurnReply
 from app.timeline.schema import Timeline, VideoClip
 from app.timeline.transcript import Transcript, Word
@@ -63,7 +65,10 @@ def workspace(words: list[str] = EN, lang: str = "en") -> MemoryWorkspace:
         for w in tl.transcript.words
         if w.text in ("um", "uh", "basically", "matlab", "toh")
     ]
-    return MemoryWorkspace(tl, speech=speech, fillers=fillers)
+    ws = MemoryWorkspace(tl, speech=speech, fillers=fillers)
+    if Path("assets").is_dir():
+        ws.catalog = AssetCatalog(Path("assets"), Path("work/cache/memes"))
+    return ws
 
 
 @dataclass
@@ -378,5 +383,203 @@ CASES: list[Case] = [
         [called("add_captions"), YELLOW],
         words=HI,
         lang="hi",
+    ),
+    Case(
+        "plan-edit-basic",
+        "write an edit plan before making changes",
+        [
+            turn(
+                (
+                    "plan_edit",
+                    {
+                        "summary": "Plan edits for the reel",
+                        "steps": ["Review timeline", "Prepare cuts"],
+                        "moments": [{"at_word": "w10", "show": "AWS logo"}],
+                        "music_mood": "upbeat",
+                        "transition": "zoom_in",
+                    },
+                )
+            ),
+            say("Here is the plan."),
+        ],
+        [called("plan_edit"), no_edits(), answered()],
+    ),
+    Case(
+        "search-assets-icons",
+        "find an icon for openai",
+        [turn(("search_assets", {"kind": "icon", "query": "openai"})), say("Found OpenAI logo.")],
+        [called("search_assets"), no_edits(), answered()],
+    ),
+    Case(
+        "cut-by-transcript-part",
+        "cut by transcript to keep from it sounds crazy until nobody used",
+        [turn(("cut_by_transcript", {"start_word": "w14", "end_word": "w26"})), say()],
+        [called("cut_by_transcript"), shorter_than(FULL)],
+    ),
+    Case(
+        "redo-action",
+        "redo that edit",
+        [turn(("remove_silence", {})), turn(("undo", {})), turn(("redo", {})), say()],
+        [called("redo"), answered()],
+    ),
+    Case(
+        "headline-card-top",
+        "add a headline card at the top saying Cloud Bill Secret",
+        [turn(("add_headline_card", {"text": "Cloud Bill Secret", "position": "top"})), say()],
+        [called("add_headline_card"), answered()],
+    ),
+    Case(
+        "text-overlay-bottom",
+        "add a text overlay at the bottom saying Save 80% Now",
+        [turn(("add_text_overlay", {"text": "Save 80% Now", "position": "bottom"})), say()],
+        [called("add_text_overlay"), answered()],
+    ),
+    Case(
+        "inserts-batch",
+        "add b-roll inserts for our cloud servers",
+        [
+            turn(
+                (
+                    "add_inserts",
+                    {
+                        "items": [{"at_word": "w10", "kind": "icon", "query": "aws"}],
+                        "default_layout": "split_top",
+                    },
+                )
+            ),
+            say(),
+        ],
+        [called("add_inserts"), answered()],
+    ),
+    Case(
+        "auto-visuals-normal",
+        "automatically add visuals and b-roll for entity mentions",
+        [turn(("auto_visuals", {"density": "normal", "layout": "split_top"})), say()],
+        [called("auto_visuals"), answered()],
+    ),
+    Case(
+        "insert-asset-icon",
+        "insert the openai logo when I talk about cloud bill",
+        [
+            turn(
+                (
+                    "insert_asset",
+                    {"asset_id": "icons:openai", "at_word": "w8", "layout": "pip_pop"},
+                )
+            ),
+            say(),
+        ],
+        [called("insert_asset"), answered()],
+    ),
+    Case(
+        "insert-meme-skeleton",
+        "insert a waiting skeleton meme when I say nobody used",
+        [
+            turn(
+                (
+                    "insert_meme",
+                    {
+                        "template_id": "memes:imgflip-4087833",
+                        "top_text": "WAITING FOR",
+                        "bottom_text": "SERVERS",
+                        "at_word": "w24",
+                        "layout": "pip_pop",
+                    },
+                )
+            ),
+            say(),
+        ],
+        [called("insert_meme"), answered()],
+    ),
+    Case(
+        "remove-insert-overlay",
+        "remove that overlay insert",
+        [
+            turn(
+                (
+                    "insert_asset",
+                    {"asset_id": "icons:openai", "at_word": "w8", "layout": "pip_pop"},
+                )
+            ),
+            turn(("remove_insert", {"insert_id": "ins1"})),
+            say(),
+        ],
+        [called("remove_insert"), answered()],
+    ),
+    Case(
+        "zooms-emphasis",
+        "add punch in zooms on the important numbers",
+        [turn(("add_zooms", {"word_ids": ["w11"], "scale": 1.15})), say()],
+        [called("add_zooms"), answered()],
+    ),
+    Case(
+        "transition-zoom",
+        "add a zoom in transition effect",
+        [turn(("set_transition", {"style": "zoom_in"})), say()],
+        [called("set_transition"), answered()],
+    ),
+    Case(
+        "music-electronic",
+        "add upbeat electronic background music",
+        [turn(("add_music", {"genre": "electronic", "mood": "upbeat"})), say()],
+        [called("add_music"), answered()],
+    ),
+    Case(
+        "remove-music-track",
+        "remove the background music",
+        [
+            turn(("add_music", {"genre": "electronic", "mood": "upbeat"})),
+            turn(("remove_music", {})),
+            say(),
+        ],
+        [called("remove_music"), answered()],
+    ),
+    Case(
+        "auto-sfx-all",
+        "auto add sound effects on cuts and zooms",
+        [turn(("auto_sfx", {"on_cuts": True, "on_inserts": True, "on_zooms": True})), say()],
+        [called("auto_sfx"), answered()],
+    ),
+    Case(
+        "add-sfx-whoosh",
+        "add a whoosh sound effect at the beginning",
+        [turn(("add_sfx", {"sfx_type": "whoosh", "at_word": "w1"})), say()],
+        [called("add_sfx"), answered()],
+    ),
+    Case(
+        "generate-sfx-laser",
+        "generate a custom laser sound effect at word w5",
+        [
+            turn(
+                (
+                    "generate_sfx",
+                    {"prompt": "futuristic sci-fi laser blast", "at_word": "w5"},
+                )
+            ),
+            say(),
+        ],
+        [called("generate_sfx"), answered()],
+    ),
+    Case(
+        "add-voiceover-intro",
+        "add voiceover narration saying Check this out at the start",
+        [turn(("add_voiceover", {"text": "Check this out", "at_word": "w1"})), say()],
+        [called("add_voiceover"), answered()],
+    ),
+    Case(
+        "remove-voiceover-clip",
+        "remove that voiceover",
+        [
+            turn(("add_voiceover", {"text": "Check this out", "at_word": "w1"})),
+            turn(("remove_voiceover", {"voiceover_id": "vo1"})),
+            say(),
+        ],
+        [called("remove_voiceover"), answered()],
+    ),
+    Case(
+        "dub-video-hindi",
+        "dub the video into Hindi",
+        [turn(("dub_video", {"target_language": "hi"})), say()],
+        [called("dub_video"), answered()],
     ),
 ]
