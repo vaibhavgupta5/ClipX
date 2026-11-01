@@ -62,6 +62,7 @@ services:
       ELEVENLABS_PLAN: ${ELEVENLABS_PLAN:-free}
       ELEVENLABS_VOICE_ID: ${ELEVENLABS_VOICE_ID:-JBFqnCBsd6RMkjVDRZzb}
       ASSETS_DIR: /srv/assets
+      PLAYWRIGHT_BROWSERS_PATH: /opt/clipz-browsers
       UV_CACHE_DIR: /tmp/uv
     ports:
       - "8000:8000"
@@ -69,6 +70,7 @@ services:
       - ./app:/srv/app:ro
       - ./assets:/srv/assets:ro
       - ./assets/generated:/srv/assets/generated  # writable: GeneratedAudioStore cache (SFX/voiceover/dub)
+      - ./assets/showcase:/srv/assets/showcase  # writable: GeneratedImageStore cache (infographics/web captures)
       - ./upload:/srv/data/upload
       - ./work:/srv/data/work
       - ./editedVideo:/srv/data/editedVideo
@@ -109,6 +111,7 @@ services:
       ELEVENLABS_PLAN: ${ELEVENLABS_PLAN:-free}
       ELEVENLABS_VOICE_ID: ${ELEVENLABS_VOICE_ID:-JBFqnCBsd6RMkjVDRZzb}
       ASSETS_DIR: /srv/assets
+      PLAYWRIGHT_BROWSERS_PATH: /opt/clipz-browsers
       WHISPER_MODEL: ${WHISPER_MODEL:-small}
       HF_HOME: /srv/data/work/.hf  # faster-whisper model, downloaded once
       UV_CACHE_DIR: /tmp/uv
@@ -116,6 +119,7 @@ services:
       - ./app:/srv/app:ro
       - ./assets:/srv/assets:ro
       - ./assets/generated:/srv/assets/generated  # writable: GeneratedAudioStore cache (SFX/voiceover/dub)
+      - ./assets/showcase:/srv/assets/showcase  # writable: GeneratedImageStore cache (infographics/web captures)
       - ./upload:/srv/data/upload
       - ./work:/srv/data/work
       - ./editedVideo:/srv/data/editedVideo
