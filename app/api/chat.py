@@ -54,7 +54,7 @@ HISTORY_TURNS = 10  # prior chat messages (text only) sent with each request
 class ChatRequestBody(BaseModel):
     """One user chat message."""
 
-    text: str = Field(min_length=1, max_length=2000, description="What the user wants")
+    text: str = Field(min_length=1, max_length=32000, description="What the user wants")
     creator: str | None = Field(
         default=None,
         pattern=r"^[a-z0-9][a-z0-9-]{0,31}$",
