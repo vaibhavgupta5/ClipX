@@ -221,7 +221,10 @@ def split_segments(tl: Timeline) -> list[Segment]:
                 if clip_start < e_int < clip_end:
                     split_points.add(e_int)
 
-        sorted_points = sorted(split_points)
+        # Whole output frames only: a 9.3-frame segment is encoded as 9 or 10 frames, which
+        # shifts every later frame and puts an animated scene one frame out of phase with
+        # its artifact. Each point is rounded independently, so nothing accumulates.
+        sorted_points = sorted({round(p * 30) / 30 for p in split_points})
         for p_idx in range(len(sorted_points) - 1):
             start = sorted_points[p_idx]
             end = sorted_points[p_idx + 1]

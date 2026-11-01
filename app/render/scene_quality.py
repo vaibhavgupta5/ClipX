@@ -1,5 +1,6 @@
 """Actual-output visibility checks against rendered scene pixels, across every frame."""
 
+import os
 from pathlib import Path
 
 import cv2
@@ -20,6 +21,19 @@ def exceeds_limits(mean_error: float, changed_fraction: float, frames_into_scene
     """
     settling = frames_into_scene < SETTLE_FRAMES
     return mean_error > (10 if settling else 6) or changed_fraction > (0.06 if settling else 0.02)
+
+
+def _dump(
+    name: str, frame: int, actual: np.ndarray, expected: np.ndarray, delta: np.ndarray
+) -> None:
+    """Debug aid: save composite / artifact / diff for a failing frame (VISIBILITY_DEBUG_DIR)."""
+    out = Path(os.environ["VISIBILITY_DEBUG_DIR"])
+    out.mkdir(parents=True, exist_ok=True)
+    h = expected.shape[0]
+    diff = np.clip(delta.max(axis=2) * 4, 0, 255).astype(np.uint8)
+    cv2.imwrite(str(out / f"{name}-{frame}-actual.png"), actual[:h])
+    cv2.imwrite(str(out / f"{name}-{frame}-expected.png"), expected)
+    cv2.imwrite(str(out / f"{name}-{frame}-diff.png"), diff)
 
 
 def inspect_scene_composition(
@@ -74,6 +88,8 @@ def inspect_scene_composition(
                 bad = float((delta.max(axis=2) > 35).mean())
                 checked += 1
                 if exceeds_limits(error, bad, at):
+                    if os.environ.get("VISIBILITY_DEBUG_DIR") and len(findings) < 6:
+                        _dump(name, frame, actual, expected, delta)
                     if len(findings) < 100:
                         findings.append(
                             {

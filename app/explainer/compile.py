@@ -355,7 +355,10 @@ def compile_cards(tl: Timeline, cards: list[Card], assets: Assets, accent: str) 
     fixed = []
     for i, p in enumerate(out.placements):
         following = out.placements[i + 1] if i + 1 < len(out.placements) else None
-        if following is not None and nxt.get(p.end_word) == following.start_word:
+        if following is not None and (
+            nxt.get(p.end_word) == following.start_word  # next word
+            or p.end_word == following.start_word  # planner shared the boundary word
+        ):
             p = p.model_copy(update={"end_word": following.start_word, "end_boundary": "start"})
         fixed.append(p)
     out.placements = fixed

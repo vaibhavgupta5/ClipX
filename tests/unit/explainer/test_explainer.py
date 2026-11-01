@@ -255,3 +255,17 @@ async def test_blocked_page_reuses_the_earlier_screenshot_of_the_same_url(
     )  # fmt: skip
     assert "c1" in out.assets.proofs and out.captures == 1
     assert any("reused the screenshot" in w for w in out.warnings)
+
+
+def test_scenes_sharing_a_boundary_word_hand_over_without_overlap() -> None:
+    tl = timeline()
+    ids = [w.id for w in tl.transcript.words]
+    a = Card(id="a", start_word=ids[0], end_word=ids[6], family="checklist", title="A",
+             items=["one", "two"])  # fmt: skip
+    b = Card(id="b", start_word=ids[6], end_word=ids[12], family="checklist", title="B",
+             items=["x", "y"])  # fmt: skip
+    from app.explainer.compile import Assets, compile_cards
+
+    out = compile_cards(tl, [a, b], Assets(), "teal")
+    first = out.placements[0]
+    assert first.end_boundary == "start" and first.end_word == out.placements[1].start_word
