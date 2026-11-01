@@ -577,7 +577,12 @@ async function brainstorm(text) {
     if (!current(pid)) return; // saved; shown when you come back to that project
     say("brain", r.reply);
     if (r.final_prompt) finalCard(r.final_prompt);
-  } catch (e) { thinking.remove(); say("sys", `Brainstorm failed: ${e.message}`); hist.pop(); }
+  } catch (e) {
+    thinking.remove();
+    say("sys", `Brainstorm failed: ${e.message}`);
+    hist.pop();
+    store.set(`rf_brain_${pid}`, hist);
+  }
 }
 
 function finalCard(prompt) {

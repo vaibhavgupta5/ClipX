@@ -113,13 +113,13 @@ class BrainstormTurn(BaseModel):
     """One message of the brainstorm (client keeps the history)."""
 
     role: Literal["user", "assistant"]
-    content: str = Field(min_length=1, max_length=4000)
+    content: str = Field(min_length=1, max_length=32000)
 
 
 class BrainstormBody(BaseModel):
     """Brainstorm history, oldest first; the last turn is the user's."""
 
-    messages: list[BrainstormTurn] = Field(min_length=1, max_length=24)
+    messages: list[BrainstormTurn] = Field(min_length=1, max_length=50)
 
 
 def get_brainstorm_llm() -> LLMProvider:
