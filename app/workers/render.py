@@ -70,6 +70,11 @@ def attributions(tl: TimelineModel) -> list[str]:
     return list(dict.fromkeys(line for line in lines if line))
 
 
+# A preview and a final render at once ran two multi-threaded FFmpeg encodes (load ~28) and the
+# slower one hit the 600 s FFmpeg timeout. One render per worker process; the rest queue.
+_RENDER_SLOT = asyncio.Semaphore(1)
+
+
 async def render_task(ctx: dict[str, Any], *, job_id: str, render_id: str) -> dict[str, object]:
     """Render the timeline snapshot linked to a Render document. Returns a status dict."""
     settings: Settings = ctx["settings"]
@@ -81,7 +86,8 @@ async def render_task(ctx: dict[str, Any], *, job_id: str, render_id: str) -> di
     started = time.monotonic()
     stage_name = f"render-{render.profile}"
     try:
-        result = await _run_render(db, get_storage(settings), settings, jid, render)
+        async with _RENDER_SLOT:  # queued renders wait here; the ffmpeg clock starts after
+            result = await _run_render(db, get_storage(settings), settings, jid, render)
         await telemetry.stage(
             db,
             stage_name,
