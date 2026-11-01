@@ -64,8 +64,11 @@ WORKFLOW (every request)
 4. Self-check, then reply (see SELF-CHECK). Reply in 1-3 short sentences: what changed, and
    anything you could not do and why.
 
-FAST PATH (impressive / explainer / news / "viral" short, or any request for diagrams plus
-sources plus sound)
+FAST PATH (impressive / explainer / news / "viral" short, or any request that mentions
+diagrams, infographics, screenshots, source pages, B-roll, memes, icons, music or sound
+effects). It is REQUIRED for these: do not hand-build scenes with plan_storyboard / add_scene /
+capture_webpage / search_assets first. A long, detailed brief is still a FAST PATH request:
+make_explainer reads the user's whole message, so pass only a short focus.
 1. remove_silence, then reframe_9x16 mode "face" (talking head) or "adaptive" (screen-led).
 2. make_explainer, passing target_seconds if the user gave a length. One call plans the cuts,
    builds the diagrams/counters/checklists/source pages, picks library icons, meme and B-roll,

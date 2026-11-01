@@ -298,6 +298,9 @@ def _seg_asset_ids(seg: Segment, asset_files: dict[str, str]) -> list[str]:
     return ids
 
 
+CUT_FX_TAIL_S = 0.7  # a cut effect's decay must not reach the first frames of a scene
+
+
 def segment_cut_effect(tl: Timeline, seg: Segment) -> str:
     """Effect at a segment's start: its clip's cut effect on a real cut, otherwise
     ``Timeline.scene_exit`` when raw footage returns after a full-frame scene.
@@ -306,7 +309,8 @@ def segment_cut_effect(tl: Timeline, seg: Segment) -> str:
     no footage effect is ever applied under it (it would change pixels the scene must own).
     """
     opens_scene = any(
-        sc.placement.slot == "full" and rel_start < 0.25 for sc, rel_start, _, _ in seg.scenes
+        sc.placement.slot == "full" and rel_start < CUT_FX_TAIL_S
+        for sc, rel_start, _, _ in seg.scenes
     )
     if opens_scene:
         return "none"

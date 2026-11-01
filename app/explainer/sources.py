@@ -39,6 +39,12 @@ def _same_page(a: str, b: str) -> bool:
     return pa.hostname == pb.hostname and pa.path.rstrip("/") == pb.path.rstrip("/")
 
 
+def _earlier_capture(catalog: AssetCatalog, url: str) -> LibraryItem | None:
+    """Newest screenshot of the same page already in the showcase library (cache, rule 5)."""
+    found = [i for i in catalog.items("showcase") if i.source_url and _same_page(i.source_url, url)]
+    return found[-1] if found else None
+
+
 def _shrunk_jpeg(data: bytes) -> bytes:
     """Library photos are large; scenes accept at most four megapixels."""
     with Image.open(io.BytesIO(data)) as im:
@@ -115,11 +121,6 @@ def _library_bytes(catalog: AssetCatalog, kind: str, item: LibraryItem) -> bytes
     return _shrunk_jpeg(path.read_bytes())
 
 
-def archive_url(url: str) -> str:
-    """Wayback Machine's newest snapshot of ``url`` without its toolbar (``if_`` mode)."""
-    return f"https://web.archive.org/web/2if_/{url}"
-
-
 async def _capture(
     card: Card,
     store: Storage,
@@ -135,15 +136,13 @@ async def _capture(
     if card.highlight:
         attempts.append((prose, None))
     last = ""
-    url = card.source_url
-    archived = False
     for reading, phrase in attempts:
         focus: dict[str, tuple[float, float, float, float]] = {}
         try:
             item = await capture_webpage(
                 CaptureIn(
                     at_word=card.start_word,
-                    url=url,
+                    url=card.source_url,
                     viewport="portrait",
                     highlight_text=phrase,
                     reading_mode=reading,
@@ -156,13 +155,14 @@ async def _capture(
             if "was not found" in last:
                 await sleep(2)
                 continue
-            if "blocks automated capture" in last and not archived:
-                # The site refuses bots. Respect that; show the public Internet Archive copy of
-                # the same page instead (same URL, older snapshot), once, without evasion.
-                archived, url = True, archive_url(card.source_url)
-                continue
-            break  # blocked or unreachable: more attempts only annoy the site
-        data = (images.dir / item.file).read_bytes()
+            earlier = _earlier_capture(catalog, card.source_url) if "blocks" in last else None
+            if earlier is None:
+                break  # blocked or unreachable: more attempts only annoy the site
+            item, cached = earlier, True  # reuse our own earlier capture of the same page
+            focus = {}
+        else:
+            cached = False
+        data = (catalog.path("showcase", item) if cached else images.dir / item.file).read_bytes()
         asset_id = slug(f"page_{host}_{card.id}", set(gathered.evidence))
         asset = freeze_image(
             store,
@@ -174,7 +174,7 @@ async def _capture(
             license=item.license,
             kind="observed",
             commercial_use=item.commercial_use,
-            attribution=card.source_url + (" (Internet Archive copy)" if archived else ""),
+            attribution=card.source_url,
             project_id=project_id,
             text=phrase or "",
         )
@@ -184,9 +184,13 @@ async def _capture(
         if "box" in focus and phrase:
             gathered.assets.focus[card.id] = focus["box"]
         gathered.captures += 1
-        if archived:
+        if item.attribution_text and "Internet Archive" in item.attribution_text:
             gathered.warnings.append(
                 f"{host} blocks automated capture: used its Internet Archive copy"
+            )
+        if cached:
+            gathered.warnings.append(
+                f"{host} blocked capture now: reused the screenshot taken earlier of the same page"
             )
         catalog.reload("showcase")
         return
@@ -250,4 +254,33 @@ async def gather(
             await sleep(CAPTURE_GAP_S)
         first = False
         await _capture(c, store, images, catalog, out, project_id, sleep)
+    return out
+
+
+def text_for_uncaptured(
+    cards: list[Card], proofs: dict[str, str], warnings: list[str]
+) -> list[Card]:
+    """A source page that could not be captured becomes a plain title card, never a fake shot.
+
+    The card shows the planner's claim headline with the host as its label; it carries no
+    screenshot, so nothing implies the page was seen. The beat keeps its timing and SFX.
+    """
+    out: list[Card] = []
+    for c in cards:
+        if c.family != "proof_focus" or c.id in proofs:
+            out.append(c)
+            continue
+        host = (urlparse(c.source_url).hostname or "source").removeprefix("www.")
+        warnings.append(f"{c.id}: {host} could not be captured, shown as a text card instead")
+        out.append(
+            c.model_copy(
+                update={
+                    "family": "impact_title",
+                    "headline": c.title[:48],
+                    "kicker": host.upper()[:40],
+                    "source_url": "",
+                    "highlight": "",
+                }
+            )
+        )
     return out

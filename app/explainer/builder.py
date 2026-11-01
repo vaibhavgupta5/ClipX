@@ -12,7 +12,7 @@ from app.explainer.governor import apply_drops, govern_length, prune_slivers
 from app.explainer.models import Card, Plan
 from app.explainer.planner import plan_cards
 from app.explainer.policy import apply_policy
-from app.explainer.sources import extract_urls, gather
+from app.explainer.sources import extract_urls, gather, text_for_uncaptured
 from app.providers.base import LLMProvider
 from app.providers.local import AssetCatalog
 from app.scenes.timing import timing_hash
@@ -98,7 +98,7 @@ class ExplainerBuilder:
         if self.llm is not None:
             plan = await plan_cards(
                 self.llm, tl, target_s=target, urls=urls, brands=brands, focus=focus,
-                warnings=warnings,
+                warnings=warnings, brief=message,
             )  # fmt: skip
         mood, accent, extras = "tech", "teal", []
         compiled_n = 0
@@ -114,6 +114,7 @@ class ExplainerBuilder:
                 urls=urls, project_id=tl.project_id, sleep=self.sleep,
             )  # fmt: skip
             warnings += got.warnings
+            cards = text_for_uncaptured(cards, got.assets.proofs, warnings)
             built = compile_cards(tl, cards, got.assets, accent)
             warnings += built.warnings
             if built.specs:

@@ -206,44 +206,52 @@ def test_word_free_slivers_are_pruned_but_spoken_clips_stay() -> None:
     assert prune_slivers(tl) is tl  # nothing to prune: same object back
 
 
-async def test_blocked_site_falls_back_to_the_archive_copy_once(
+async def test_the_users_brief_reaches_the_planner() -> None:
+    tl = timeline()
+    llm = FakeLLM(plan_json(tl))
+    await plan_cards(
+        llm, tl, target_s=30, urls=[], brands=[], focus="", warnings=[],
+        brief="Headline: card \"OpenAI just launched dots\"",
+    )  # fmt: skip
+    sent = json.loads(llm.requests[0].messages[1].content)
+    assert "OpenAI just launched dots" in sent["creator_brief"]
+
+
+async def test_blocked_page_reuses_the_earlier_screenshot_of_the_same_url(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    import io
     import uuid
+
+    from PIL import Image
 
     from app.explainer import sources
     from app.explainer.models import Card
 
-    seen: list[str] = []
+    cat = catalog(tmp_path)
+    buf = io.BytesIO()
+    Image.new("RGB", (300, 400), "white").save(buf, format="PNG")
+    shot = cat.root / "showcase" / "old.png"
+    shot.write_bytes(buf.getvalue())
+    (cat.root / "showcase" / "manifest.json").write_text(
+        json.dumps([{
+            "id": "showcase:old", "file": "old.png", "title": "t", "tags": ["showcase"],
+            "source": "generated", "source_url": "https://openai.com/index/x/",
+            "license": "website-screenshot-unverified", "attribution_required": False,
+            "commercial_use": False,
+        }])
+    )  # fmt: skip
+    cat.reload("showcase")
 
-    async def fake_capture(params, images, focus):  # type: ignore[no-untyped-def]
-        seen.append(params.url)
-        if "web.archive.org" not in params.url:
-            raise ValueError("HTTP 403; the site blocks automated capture")
-        raise ValueError("webpage did not load successfully (HTTP 404)")
+    async def blocked(params, images, focus=None):  # type: ignore[no-untyped-def]
+        raise ValueError("HTTP 403; the site blocks automated capture")
 
-    monkeypatch.setattr(sources, "capture_webpage", fake_capture)
-    card = Card.model_validate(
-        {
-            "id": "c1",
-            "family": "proof_focus",
-            "title": "t",
-            "start_word": "w1",
-            "end_word": "w2",
-            "source_url": "https://openai.com/index/x",
-            "highlight": "hello",
-        }
-    )
+    monkeypatch.setattr(sources, "capture_webpage", blocked)
+    card = Card(id="c1", start_word="w1", end_word="w2", family="proof_focus", title="t",
+                source_url="https://openai.com/index/x", highlight="hello")  # fmt: skip
     out = await sources.gather(
-        [card],
-        catalog=catalog(tmp_path),
-        store=MemoryStorage(),
-        images=object(),  # type: ignore[arg-type]
-        urls=["https://openai.com/index/x"],
-        project_id=uuid.uuid4(),
-    )
-    assert seen == [
-        "https://openai.com/index/x",
-        "https://web.archive.org/web/2if_/https://openai.com/index/x",
-    ]
-    assert any("not captured" in w for w in out.warnings)
+        [card], catalog=cat, store=MemoryStorage(), images=object(),  # type: ignore[arg-type]
+        urls=["https://openai.com/index/x"], project_id=uuid.uuid4(),
+    )  # fmt: skip
+    assert "c1" in out.assets.proofs and out.captures == 1
+    assert any("reused the screenshot" in w for w in out.warnings)

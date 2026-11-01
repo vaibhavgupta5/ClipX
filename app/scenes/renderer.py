@@ -6,6 +6,7 @@ import io
 import json
 import subprocess
 import tempfile
+import threading
 import time
 from pathlib import Path
 
@@ -21,6 +22,10 @@ from app.storage import Storage
 from app.storyboard.store import content_hash
 
 VISUALS = Path(__file__).resolve().parents[2] / "visuals"
+
+# A preview and a final export run in parallel worker jobs; two Chromium instances plus FFmpeg
+# exhausted memory and killed the browser mid-screenshot. One browser per worker process.
+_BROWSER_LOCK = threading.Lock()
 
 
 def equivalent_pixels(a: bytes, b: bytes) -> bool:
@@ -112,7 +117,7 @@ def render_scene(
         + (VISUALS / "src/style.css").read_bytes()
         + (VISUALS / "package-lock.json").read_bytes()
     ).hexdigest()
-    with sync_playwright() as pw:
+    with _BROWSER_LOCK, sync_playwright() as pw:
         browser = pw.chromium.launch(
             headless=True, args=["--disable-gpu", "--font-render-hinting=none"]
         )

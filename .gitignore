@@ -41,4 +41,7 @@ devday-raw.mp4
 visuals/node_modules/
 visuals/dist/
 
+demo/build/
+.~lock.*#
+
 .tools/

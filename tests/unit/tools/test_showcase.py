@@ -211,3 +211,92 @@ async def test_capture_rejects_mixed_dns_answers(monkeypatch: pytest.MonkeyPatch
 def test_capture_schema_never_accepts_arbitrary_browser_code() -> None:
     with pytest.raises(ValidationError):
         CaptureIn(url="https://example.com", at_word="w1", script="fetch('private')")
+
+
+async def test_blocked_site_falls_back_to_the_archive_copy_once(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from types import SimpleNamespace
+
+    from app.showcase import capture
+
+    monkeypatch.setattr(capture, "RETRY_PAUSE_S", 0)
+    seen: list[str] = []
+
+    async def fake(params, store, focus=None):  # type: ignore[no-untyped-def]
+        seen.append(params.url)
+        if "web.archive.org" not in params.url:
+            raise ValueError("HTTP 403; the site blocks automated capture: use another source")
+        return SimpleNamespace(
+            model_copy=lambda update: SimpleNamespace(**update)  # type: ignore[arg-type]
+        )
+
+    async def snap(url: str) -> str | None:
+        return f"https://web.archive.org/web/2026if_/{url}"
+
+    monkeypatch.setattr(capture, "archived_copy", snap)
+    monkeypatch.setattr(capture, "_capture_public_page", fake)
+    item = await capture.capture_webpage(
+        CaptureIn(at_word="w1", url="https://openai.com/index/x"),
+        object(),  # type: ignore[arg-type]
+    )
+    assert seen == [
+        "https://openai.com/index/x",
+        "https://openai.com/index/x",  # one polite retry
+        "https://web.archive.org/web/2026if_/https://openai.com/index/x",
+    ]
+    assert "Internet Archive" in item.attribution_text  # type: ignore[attr-defined]
+
+    async def always_blocked(params, store, focus=None):  # type: ignore[no-untyped-def]
+        seen.append(params.url)
+        raise ValueError("blocks automated capture")
+
+    seen.clear()
+    monkeypatch.setattr(capture, "_capture_public_page", always_blocked)
+    with pytest.raises(ValueError, match="blocks automated"):
+        await capture.capture_webpage(
+            CaptureIn(at_word="w1", url="https://openai.com/x"),
+            object(),  # type: ignore[arg-type]
+        )
+    assert len(seen) == 3  # original, one retry, one archive try: no loop
+
+
+async def test_blocked_site_without_a_good_archive_copy_says_so(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from app.showcase import capture
+
+    monkeypatch.setattr(capture, "RETRY_PAUSE_S", 0)
+
+    async def blocked(params, store, focus=None):  # type: ignore[no-untyped-def]
+        raise ValueError("HTTP 403; the site blocks automated capture")
+
+    async def none(url: str) -> str | None:
+        return None
+
+    monkeypatch.setattr(capture, "_capture_public_page", blocked)
+    monkeypatch.setattr(capture, "archived_copy", none)
+    with pytest.raises(ValueError, match="no archived copy exists"):
+        await capture.capture_webpage(
+            CaptureIn(at_word="w1", url="https://openai.com/x"),
+            object(),  # type: ignore[arg-type]
+        )
+
+
+async def test_director_does_not_retry_a_site_that_blocked_capture(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from app.agent.director import DirectorResult, _Turn
+    from app.tools.executor import ToolFailure
+
+    turn = _Turn(MemoryWorkspace(_timeline()), lambda e: None, DirectorResult())
+    turn.blocked_hosts.add("openai.com")
+    res = await turn.call(
+        ToolCall(
+            id="x",
+            name="capture_webpage",
+            args={"at_word": "w1", "url": "https://www.openai.com/index/y"},
+        )
+    )
+    assert res.is_error and "Do not retry" in res.content
+    assert ToolFailure  # imported for the type only

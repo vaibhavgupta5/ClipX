@@ -75,7 +75,7 @@ class Plan(Lenient):
     accent: Literal["teal", "white", "yellow", "mint", "amber"] = "teal"
     drop: list[tuple[str, str]] = Field(default_factory=list, max_length=12)
     cards: list[Card] = Field(min_length=1, max_length=16)
-    extras: list[Extra] = Field(default_factory=list, max_length=3)
+    extras: list[Extra] = Field(default_factory=list, max_length=4)
 
     @model_validator(mode="after")
     def ids(self) -> "Plan":

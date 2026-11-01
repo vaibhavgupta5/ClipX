@@ -160,6 +160,16 @@ def _add(a: Usage, b: Usage) -> Usage:
     )
 
 
+def _capture_host(call: ToolCall) -> str:
+    """Host of a capture_webpage call's URL ('' for other tools or bad input)."""
+    if call.name != "capture_webpage":
+        return ""
+    from urllib.parse import urlparse
+
+    url = call.args.get("url")
+    return (urlparse(url).hostname or "").removeprefix("www.") if isinstance(url, str) else ""
+
+
 class _Turn:
     """Mutable bookkeeping for one chat turn."""
 
@@ -184,6 +194,7 @@ class _Turn:
         self.log: list[tuple[str, bool, str]] = []  # (tool, ok, short reason)
         self.exported_version: int | None = None  # version the last final export rendered
         self.export_monetized = True
+        self.blocked_hosts: set[str] = set()  # sites that refused capture this turn
         self.completed: set[str] = set()  # includes successful read-only/no-op calls
 
     async def call(self, call: ToolCall) -> ToolResult:
@@ -234,6 +245,15 @@ class _Turn:
                 "or tell the user what was built",
                 "already_covered",
             )
+        host = _capture_host(call)
+        if host in self.blocked_hosts:
+            return self._error(
+                call,
+                f"{host} blocks automated capture (already tried this turn, incl. its archived "
+                "copy). Do not retry it. Use a different official page or a reputable news "
+                "article, or continue without a screenshot for this beat",
+                "site_blocked",
+            )
         started = time.monotonic()
         state = await self.ws.state()
         if call.name == "make_explainer":
@@ -272,6 +292,8 @@ class _Turn:
         if isinstance(outcome, ToolFailure):
             self.failures[call.name] = self.failures.get(call.name, 0) + 1
             code = outcome.errors[0].code if outcome.errors else "error"
+            if host and "blocks automated capture" in outcome.message():
+                self.blocked_hosts.add(host)
             self.log.append((call.name, False, code))
             return self._error(call, outcome.message(), code, _ms(started))
         facts = await self._apply(outcome)

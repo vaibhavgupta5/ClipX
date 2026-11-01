@@ -836,6 +836,22 @@ def _add_headline_card(tool: ToolDef, p: mvp.AddHeadlineCardIn, state: ToolState
     else:
         dur = max_dur_ms
 
+    if tl.scenes:  # a banner over a scene hides it and fails the scene-visibility render gate
+        from app.explainer.policy import _windows
+
+        win = _windows(tl)
+        end_s = start_s + dur / 1000
+        clash = [s for s in win.scenes if s.start_frame / 30 < end_s and s.end_frame / 30 > start_s]
+        if clash:
+            first = min(s.start_frame for s in clash) / 30
+            last = max(s.end_frame for s in clash) / 30
+            raise OpError(
+                "overlaps_scene",
+                f"a scene is on screen from {first:.1f}s to {last:.1f}s, so a headline banner "
+                f"at {start_s:.1f}s for {dur / 1000:.1f}s would cover it",
+                "put the headline text in the scene itself (update_scene headline on the hook "
+                "card) or anchor the banner on a word outside every scene",
+            )
     catalog = _catalog(state)
     rendered_id, item = catalog.render_headline(
         p.text, style=p.style, bg_color=p.bg_color, text_color=p.text_color

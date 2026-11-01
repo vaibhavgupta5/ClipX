@@ -143,3 +143,20 @@ def test_scene_frame_limits_tolerate_cut_noise_but_not_wrong_content() -> None:
     assert not exceeds_limits(6.2, 0.02, frames_into_scene=0)  # glitch/flash entrance noise
     assert exceeds_limits(6.2, 0.02, frames_into_scene=10)  # same numbers mid-scene: strict
     assert exceeds_limits(10.5, 0.0, frames_into_scene=0)  # the settle allowance is bounded
+
+
+def test_no_cut_effect_decays_into_a_scene_that_starts_shortly_after_the_cut() -> None:
+    from types import SimpleNamespace
+
+    from app.render.render import segment_cut_effect
+
+    tl = _timeline().model_copy(update={"transition": "flash"})
+    clip = tl.video_clips[0]
+    full = SimpleNamespace(placement=SimpleNamespace(slot="full"))
+    seg = Segment(index=1, start=1, end=4, clips=[clip], overlays=[], cues=[], zooms=[],
+                  is_real_cut=True)  # fmt: skip
+    # model_construct skips validation so the stand-in scene is accepted
+    early = Segment.model_construct(**{**seg.__dict__, "scenes": [(full, 0.5, 2.0, 0.0)]})
+    late = Segment.model_construct(**{**seg.__dict__, "scenes": [(full, 1.2, 2.5, 0.0)]})
+    assert segment_cut_effect(tl, early) == "none"  # 0.5 s in: the flash tail would hit it
+    assert segment_cut_effect(tl, late) != "none"  # 1.2 s in: the cut keeps its effect

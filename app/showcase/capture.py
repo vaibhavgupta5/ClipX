@@ -45,8 +45,50 @@ async def capture_webpage(
     ``focus_out["box"]`` receives the highlighted phrase's normalized (x, y, w, h) in the
     screenshot, so a scene can annotate exactly what the page says.
     """
+    try:
+        async with asyncio.timeout(45):
+            return await _capture_public_page(params, store, focus_out)
+    except ValueError as first:
+        if "blocks automated capture" not in str(first) or params.url.startswith(ARCHIVE):
+            raise
+        blocked = first
+    # Block pages are often transient (rate or load based): one polite retry after a pause.
+    await asyncio.sleep(RETRY_PAUSE_S)
+    try:
+        async with asyncio.timeout(45):
+            return await _capture_public_page(params, store, focus_out)
+    except ValueError as again:
+        blocked = again
+    # The site refuses bots. Respect that (no evasion): use the public Internet Archive
+    # snapshot of the same page, once, and only if the Archive holds a good (HTTP 200) copy.
+    snapshot = await archived_copy(params.url)
+    if snapshot is None:
+        raise ValueError(f"{blocked}; no archived copy exists either") from None
+    archived = params.model_copy(update={"url": snapshot})
     async with asyncio.timeout(45):
-        return await _capture_public_page(params, store, focus_out)
+        item = await _capture_public_page(archived, store, focus_out)
+    note = f"{params.url} (Internet Archive copy)"
+    return item.model_copy(update={"attribution_text": note, "attribution_required": True})
+
+
+RETRY_PAUSE_S = 4.0
+ARCHIVE = "https://web.archive.org/"
+
+
+async def archived_copy(url: str) -> str | None:
+    """Toolbar-free URL of the Archive's newest HTTP 200 snapshot of ``url``, if there is one."""
+    import httpx
+
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            r = await client.get("https://archive.org/wayback/available", params={"url": url})
+        closest = r.json().get("archived_snapshots", {}).get("closest", {})
+    except (httpx.HTTPError, ValueError):
+        return None
+    if not closest.get("available") or str(closest.get("status")) != "200":
+        return None
+    stamp = str(closest.get("timestamp", ""))
+    return f"{ARCHIVE}web/{stamp}if_/{url}" if stamp.isdigit() else None
 
 
 async def _capture_public_page(

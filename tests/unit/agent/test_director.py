@@ -478,3 +478,21 @@ async def test_repeats_of_what_make_explainer_did_are_refused(tmp_path) -> None:
     assert [r["name"] for r in refused] == ["add_captions", "add_music"]
     assert all(r["code"] == "already_covered" for r in refused)
     assert res.versions == [2]  # only the explainer committed
+
+
+async def test_headline_banner_over_a_scene_is_refused(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    from app.explainer.builder import ExplainerBuilder
+    from app.storage import MemoryStorage
+    from tests.unit.explainer.helpers import FakeLLM, catalog, plan_json
+    from tests.unit.explainer.helpers import timeline as long_timeline
+
+    tl = long_timeline()
+    builder = ExplainerBuilder(FakeLLM(plan_json(tl)), catalog(tmp_path), MemoryStorage())
+    _, ws, _, _ = await _run([_call("make_explainer"), _done("ok")], ws=MemoryWorkspace(tl),
+                             explainer=builder)  # fmt: skip
+    start = ws.timeline().scene_placements[0].start_word
+    _, _, events, _ = await _run(
+        [_call("add_headline_card", "h", text="Hi", at_word=start), _done("ok")], ws=ws
+    )
+    result = next(e.data for e in events if e.type == "tool_result")
+    assert not result["ok"] and "cover it" in result["error"]
